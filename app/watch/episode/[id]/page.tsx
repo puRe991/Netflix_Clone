@@ -1,0 +1,6 @@
+import { notFound, redirect } from "next/navigation";
+import { VideoPlayer } from "@/components/player/VideoPlayer";
+import { getSession } from "@/lib/auth";
+import { canStreamFullContent } from "@/lib/permissions";
+import { prisma } from "@/lib/prisma";
+export default async function WatchEpisode({params}:{params:Promise<{id:string}>}){const session=await getSession();if(!session)redirect("/login");if(!canStreamFullContent(session))redirect("/pricing");const {id}=await params;const episode=await prisma.episode.findUnique({where:{id},include:{season:{include:{series:{include:{media:true}}}}}});if(!episode)notFound();let profile=await prisma.profile.findFirst({where:{userId:session.id}});if(!profile)profile=await prisma.profile.create({data:{userId:session.id,name:session.name??"Profil"}});const next=await prisma.episode.findFirst({where:{seasonId:episode.seasonId,episodeNumber:{gt:episode.episodeNumber},isPublished:true},orderBy:{episodeNumber:"asc"}});return <VideoPlayer src={episode.videoUrl} mediaId={episode.season.series.media.id} episodeId={episode.id} profileId={profile.id} nextHref={next?`/watch/episode/${next.id}`:undefined}/>}
