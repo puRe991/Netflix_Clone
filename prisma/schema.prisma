@@ -1,6 +1,5 @@
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "binary"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,10 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role { USER ADMIN }
-enum SubscriptionStatus { FREE TRIALING ACTIVE PAST_DUE CANCELED INCOMPLETE }
-enum MediaType { MOVIE SERIES }
-enum Plan { FREE BASIC PREMIUM }
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SubscriptionStatus {
+  FREE
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+enum MediaType {
+  MOVIE
+  SERIES
+}
+
+enum Plan {
+  FREE
+  BASIC
+  PREMIUM
+}
 
 model User {
   id                 String             @id @default(cuid())
@@ -44,27 +63,27 @@ model Profile {
 }
 
 model Media {
-  id          String          @id @default(cuid())
-  title       String
-  slug        String          @unique
-  description String
-  type        MediaType
-  thumbnailUrl String
-  bannerUrl   String
-  trailerUrl  String?
-  videoUrl    String?
-  releaseYear Int
-  duration    Int?
-  ageRating   String
-  language    String          @default("Deutsch")
-  tags        String[]        @default([])
-  isPublished Boolean         @default(false)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  series      Series?
-  genres      MediaGenre[]
+  id            String          @id @default(cuid())
+  title         String
+  slug          String          @unique
+  description   String
+  type          MediaType
+  thumbnailUrl  String
+  bannerUrl     String
+  trailerUrl    String?
+  videoUrl      String?
+  releaseYear   Int
+  duration      Int?
+  ageRating     String
+  language      String          @default("Deutsch")
+  tags          String[]        @default([])
+  isPublished   Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  series        Series?
+  genres        MediaGenre[]
   watchProgress WatchProgress[]
-  watchlist   Watchlist[]
+  watchlist     Watchlist[]
 }
 
 model Series {
@@ -83,6 +102,7 @@ model Season {
   title        String
   series       Series    @relation(fields: [seriesId], references: [id], onDelete: Cascade)
   episodes     Episode[]
+
   @@unique([seriesId, seasonNumber])
 }
 
@@ -98,21 +118,23 @@ model Episode {
   isPublished   Boolean         @default(false)
   season        Season          @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   watchProgress WatchProgress[]
+
   @@unique([seasonId, episodeNumber])
 }
 
 model Genre {
-  id     String       @id @default(cuid())
-  name   String       @unique
-  slug   String       @unique
-  media  MediaGenre[]
+  id    String       @id @default(cuid())
+  name  String       @unique
+  slug  String       @unique
+  media MediaGenre[]
 }
 
 model MediaGenre {
   mediaId String
   genreId String
-  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
   @@id([mediaId, genreId])
 }
 
@@ -129,6 +151,7 @@ model WatchProgress {
   profile         Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   media           Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
   episode         Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
   @@unique([profileId, mediaId, episodeId])
 }
 
@@ -141,6 +164,7 @@ model Watchlist {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
   @@unique([profileId, mediaId])
 }
 
