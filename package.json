@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "STREAMFLIX_SKIP_DB=1 next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate || true"
+    "postinstall": "prisma generate || true",
+    "build:skip-db": "STREAMFLIX_SKIP_DB=1 next build"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

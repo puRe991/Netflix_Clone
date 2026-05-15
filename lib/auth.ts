@@ -4,7 +4,27 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 const cookieName = "streamflix_session";
-const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? "dev-only-secret-change-me");
+const developmentSecret = "dev-only-secret-change-me";
+
+function getJwtSecret() {
+  const configuredSecret = process.env.JWT_SECRET;
+
+  const isProductionRuntime = process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== "phase-production-build";
+
+  if (isProductionRuntime) {
+    if (!configuredSecret) {
+      throw new Error("JWT_SECRET must be set in production.");
+    }
+
+    if (configuredSecret.length < 32) {
+      throw new Error("JWT_SECRET must be at least 32 characters in production.");
+    }
+  }
+
+  return configuredSecret ?? developmentSecret;
+}
+
+const secret = new TextEncoder().encode(getJwtSecret());
 export type SessionUser = { id: string; email: string; role: "USER" | "ADMIN"; subscriptionStatus: "FREE" | "TRIALING" | "ACTIVE" | "PAST_DUE" | "CANCELED" | "INCOMPLETE"; name?: string | null };
 
 export async function hashPassword(password: string) { return bcrypt.hash(password, 12); }

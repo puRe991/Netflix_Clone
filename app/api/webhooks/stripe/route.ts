@@ -3,6 +3,41 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import type Stripe from "stripe";
 
-function mapStatus(status: Stripe.Subscription.Status){if(status==='active')return 'ACTIVE';if(status==='trialing')return 'TRIALING';if(status==='past_due')return 'PAST_DUE';if(status==='canceled')return 'CANCELED';return 'INCOMPLETE'}
+function mapStatus(status: Stripe.Subscription.Status) { if (status === 'active') return 'ACTIVE'; if (status === 'trialing') return 'TRIALING'; if (status === 'past_due') return 'PAST_DUE'; if (status === 'canceled') return 'CANCELED'; return 'INCOMPLETE'; }
 
-export async function POST(req:NextRequest){const signature=req.headers.get('stripe-signature');const raw=await req.text();let event:Stripe.Event;if(process.env.STRIPE_WEBHOOK_SECRET&&signature){event=stripe.webhooks.constructEvent(raw,signature,process.env.STRIPE_WEBHOOK_SECRET)}else{event=JSON.parse(raw) as Stripe.Event}if(event.type.startsWith('customer.subscription.')){const sub=event.data.object as Stripe.Subscription;const subWithPeriod=sub as Stripe.Subscription & { current_period_end?: number };const customerId=String(sub.customer);const user=await prisma.user.findFirst({where:{stripeCustomerId:customerId}});if(user){const plan=(sub.metadata?.plan==='PREMIUM'?'PREMIUM':'BASIC') as 'BASIC'|'PREMIUM';const status=mapStatus(sub.status);await prisma.subscription.upsert({where:{stripeSubscriptionId:sub.id},create:{userId:user.id,stripeSubscriptionId:sub.id,plan,status,currentPeriodEnd:subWithPeriod.current_period_end?new Date(subWithPeriod.current_period_end*1000):null},update:{plan,status,currentPeriodEnd:subWithPeriod.current_period_end?new Date(subWithPeriod.current_period_end*1000):null}});await prisma.user.update({where:{id:user.id},data:{subscriptionStatus:status}});await prisma.paymentLog.upsert({where:{stripeEventId:event.id},create:{userId:user.id,stripeEventId:event.id,type:event.type,rawData:event as never},update:{}})}}return NextResponse.json({received:true})}
+export async function POST(req: NextRequest) {
+  const signature = req.headers.get('stripe-signature');
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const raw = await req.text();
+
+  if (!webhookSecret) {
+    return NextResponse.json({ error: 'Stripe webhook secret is not configured' }, { status: 500 });
+  }
+
+  if (!signature) {
+    return NextResponse.json({ error: 'Missing Stripe signature' }, { status: 400 });
+  }
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(raw, signature, webhookSecret);
+  } catch {
+    return NextResponse.json({ error: 'Invalid Stripe signature' }, { status: 400 });
+  }
+
+  if (event.type.startsWith('customer.subscription.')) {
+    const sub = event.data.object as Stripe.Subscription;
+    const subWithPeriod = sub as Stripe.Subscription & { current_period_end?: number };
+    const customerId = String(sub.customer);
+    const user = await prisma.user.findFirst({ where: { stripeCustomerId: customerId } });
+    if (user) {
+      const plan = (sub.metadata?.plan === 'PREMIUM' ? 'PREMIUM' : 'BASIC') as 'BASIC' | 'PREMIUM';
+      const status = mapStatus(sub.status);
+      await prisma.subscription.upsert({ where: { stripeSubscriptionId: sub.id }, create: { userId: user.id, stripeSubscriptionId: sub.id, plan, status, currentPeriodEnd: subWithPeriod.current_period_end ? new Date(subWithPeriod.current_period_end * 1000) : null }, update: { plan, status, currentPeriodEnd: subWithPeriod.current_period_end ? new Date(subWithPeriod.current_period_end * 1000) : null } });
+      await prisma.user.update({ where: { id: user.id }, data: { subscriptionStatus: status } });
+      await prisma.paymentLog.upsert({ where: { stripeEventId: event.id }, create: { userId: user.id, stripeEventId: event.id, type: event.type, rawData: event as never }, update: {} });
+    }
+  }
+
+  return NextResponse.json({ received: true });
+}
