@@ -14,9 +14,9 @@ function runPrismaGenerate({ optional = false } = {}) {
   const command = existsSync(localPrisma) ? localPrisma : "prisma";
   const prismaEnv = { ...process.env };
 
-  if (process.arch === "ia32") {
-    prismaEnv.PRISMA_CLIENT_ENGINE_TYPE ||= "binary";
-    prismaEnv.PRISMA_CLI_QUERY_ENGINE_TYPE ||= "binary";
+  if (process.platform === "win32" || process.arch === "ia32") {
+    prismaEnv.PRISMA_CLIENT_ENGINE_TYPE = "binary";
+    prismaEnv.PRISMA_CLI_QUERY_ENGINE_TYPE = "binary";
   }
 
   const result = spawnSync(command, ["generate"], {

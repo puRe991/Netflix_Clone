@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "STREAMFLIX_SKIP_DB=1 next build",
+    "dev": "next dev --webpack",
+    "build": "node scripts/next-build.cjs",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "node scripts/prisma-generate.cjs",
