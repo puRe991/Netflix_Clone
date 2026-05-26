@@ -11,7 +11,7 @@ const localNext = join(
 );
 const command = existsSync(localNext) ? localNext : "next";
 
-const result = spawnSync(command, ["build", "--webpack"], {
+const result = spawnSync(command, ["build"], {
   env: { ...process.env, STREAMFLIX_SKIP_DB: "1" },
   shell: process.platform === "win32",
   stdio: "inherit",
