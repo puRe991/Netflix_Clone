@@ -11,7 +11,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
     "typecheck": "tsc --noEmit",
-    "postinstall": "node scripts/postinstall-prisma.cjs"
+    "postinstall": "node scripts/postinstall-prisma.cjs",
+    "doctor:32bit": "node scripts/doctor-32bit.cjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
