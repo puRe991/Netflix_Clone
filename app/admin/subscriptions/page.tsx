@@ -1,1 +1,0 @@
-export default function Page(){return <div><h1 className="text-4xl font-black">Admin subscriptions</h1><p className="mt-4 text-zinc-400">Verwaltung für subscriptions; API-Endpunkte und Tabellenstruktur sind vorbereitet.</p></div>}

@@ -1,0 +1,30 @@
+{{define "title"}}Nutzer – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>Nutzer</h1>
+  <table>
+    <thead><tr><th>E-Mail</th><th>Name</th><th>Rolle</th><th>Abo-Status</th><th></th></tr></thead>
+    <tbody>
+      {{range .Users}}
+      <tr>
+        <td>{{.Email}}</td>
+        <td>{{if .Name}}{{.Name}}{{end}}</td>
+        <td>{{if eq .Role "ADMIN"}}<span class="badge badge-admin">ADMIN</span>{{else}}<span class="badge">USER</span>{{end}}</td>
+        <td>{{.SubscriptionStatus}}</td>
+        <td>
+          <form action="/admin/users/{{.ID}}/role" method="post">
+            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+            <button type="submit" class="btn btn-ghost">
+              {{if eq .Role "ADMIN"}}Zu USER machen{{else}}Zu ADMIN machen{{end}}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+</div>
+{{end}}

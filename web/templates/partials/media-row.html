@@ -1,0 +1,10 @@
+{{define "media-row"}}
+{{if .Items}}
+<section class="row">
+  <h2>{{.Heading}}</h2>
+  <div class="row-track scrollbar-hide">
+    {{range .Items}}{{template "media-card" .}}{{end}}
+  </div>
+</section>
+{{end}}
+{{end}}

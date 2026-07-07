@@ -1,0 +1,14 @@
+{{define "title"}}Admin Dashboard – StreamFlix{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>Dashboard</h1>
+  <div class="stat-grid">
+    <div class="stat-tile"><div class="value">{{.Stats.Users}}</div><div class="label">Nutzer</div></div>
+    <div class="stat-tile"><div class="value">{{.Stats.ActiveSubscriptions}}</div><div class="label">Aktive Abos</div></div>
+    <div class="stat-tile"><div class="value">{{.Stats.Media}}</div><div class="label">Medien</div></div>
+  </div>
+</div>
+</div>
+{{end}}

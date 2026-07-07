@@ -1,0 +1,23 @@
+{{define "title"}}Abos – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>Abonnements</h1>
+  <table>
+    <thead><tr><th>Nutzer</th><th>Plan</th><th>Status</th><th>Läuft ab</th></tr></thead>
+    <tbody>
+      {{range .Subscriptions}}
+      <tr>
+        <td>{{if .UserEmail}}{{.UserEmail}}{{end}}</td>
+        <td>{{.Plan}}</td>
+        <td>{{.Status}}</td>
+        <td>{{if .CurrentPeriodEnd}}{{.CurrentPeriodEnd.Format "02.01.2006"}}{{end}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  {{if not .Subscriptions}}<p class="card-meta">Noch keine Abonnements.</p>{{end}}
+</div>
+</div>
+{{end}}

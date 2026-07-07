@@ -1,0 +1,31 @@
+{{define "title"}}Neue Serie – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>Neue Serie</h1>
+  {{if not .AvailableMedia}}
+  <p class="card-meta">Keine passenden Medien gefunden. Lege zuerst unter <a href="/admin/media/new" style="color:#dc2626">Medien &rarr; Neu</a> einen Eintrag mit Typ "Serie" an.</p>
+  {{else}}
+  <form action="/admin/series" method="post" style="max-width:520px">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="mediaId">Medium</label>
+      <select id="mediaId" name="mediaId" required>
+        {{range .AvailableMedia}}<option value="{{.ID}}">{{.Title}}</option>{{end}}
+      </select>
+    </div>
+    <div class="field">
+      <label for="title">Titel</label>
+      <input type="text" id="title" name="title" required minlength="2">
+    </div>
+    <div class="field">
+      <label for="description">Beschreibung</label>
+      <textarea id="description" name="description" required minlength="10" rows="4"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Anlegen</button>
+  </form>
+  {{end}}
+</div>
+</div>
+{{end}}

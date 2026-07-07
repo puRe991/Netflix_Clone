@@ -1,0 +1,9 @@
+{{define "title"}}Konto – StreamFlix{{end}}
+{{define "content"}}
+<div class="container" style="max-width:560px;padding-top:2rem">
+  <h1>Konto</h1>
+  <p><strong>E-Mail:</strong> {{.Email}}</p>
+  <p><strong>Abo-Status:</strong> {{.SubscriptionStatus}}</p>
+  <a class="btn btn-primary" href="/billing">Abo verwalten</a>
+</div>
+{{end}}

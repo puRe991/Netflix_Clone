@@ -1,10 +1,5 @@
-node_modules
-.next
-lib/generated
 .env
 .env.local
-.vercel
-coverage
-.DS_Store
+.env.local.test
+dist/
 *.log
-tsconfig.tsbuildinfo

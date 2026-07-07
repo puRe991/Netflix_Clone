@@ -1,0 +1,18 @@
+{{define "title"}}{{.Title}} – StreamFlix{{end}}
+{{define "content"}}
+<div class="watch-page">
+  <video id="player" controls playsinline autoplay
+    data-media-id="{{.MediaID}}"
+    {{if .EpisodeID}}data-episode-id="{{.EpisodeID}}"{{end}}
+    data-profile-id="{{.ProfileID}}"
+    data-initial-progress="{{.InitialProgress}}"
+    data-csrf-token="{{.CSRFToken}}"
+    {{if .NextHref}}data-next-href="{{.NextHref}}"{{end}}
+    src="{{.VideoURL}}">
+  </video>
+  <div class="watch-title-bar">
+    <h1 style="font-size:1.1rem;margin:0">{{.Title}}</h1>
+  </div>
+</div>
+<script src="/static/js/watch.js"></script>
+{{end}}

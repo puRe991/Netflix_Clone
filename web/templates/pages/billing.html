@@ -1,0 +1,23 @@
+{{define "title"}}Abo – StreamFlix{{end}}
+{{define "content"}}
+<div class="container" style="max-width:560px;padding-top:2rem">
+  <h1>Abo verwalten</h1>
+
+  <form action="/api/billing/create-checkout-session" method="post" style="margin-bottom:1rem">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <input type="hidden" name="plan" value="BASIC">
+    <button type="submit" class="btn btn-primary">Basic abonnieren</button>
+  </form>
+
+  <form action="/api/billing/create-checkout-session" method="post" style="margin-bottom:1rem">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <input type="hidden" name="plan" value="PREMIUM">
+    <button type="submit" class="btn btn-primary">Premium abonnieren</button>
+  </form>
+
+  <form action="/api/billing/create-portal-session" method="post">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <button type="submit" class="btn btn-secondary">Zahlungsdetails verwalten (Stripe Portal)</button>
+  </form>
+</div>
+{{end}}
