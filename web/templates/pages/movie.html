@@ -1,0 +1,28 @@
+{{define "title"}}{{.Media.Title}} – StreamFlix{{end}}
+{{define "content"}}
+<section class="hero" style="background-image:url('{{.Media.BannerURL}}')">
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <h1>{{.Media.Title}}</h1>
+    <p class="card-meta">{{.Media.ReleaseYear}} · {{.Media.AgeRating}} · {{formatDuration .Media.Duration}}</p>
+    <p>{{.Media.Description}}</p>
+    {{if .Media.Genres}}
+    <p class="card-meta">{{range $i, $g := .Media.Genres}}{{if $i}}, {{end}}{{$g.Name}}{{end}}</p>
+    {{end}}
+    <div style="display:flex;gap:.75rem;margin-top:1rem">
+      {{if .CanStream}}
+        <a class="btn btn-primary" href="/watch/{{.Media.ID}}">▶ Abspielen</a>
+      {{else}}
+        <a class="btn btn-primary" href="/pricing">Abo aktivieren</a>
+      {{end}}
+      {{if .User}}
+      <form action="/api/watchlist" method="post">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <input type="hidden" name="mediaId" value="{{.Media.ID}}">
+        <button type="submit" class="btn btn-secondary">+ Meine Liste</button>
+      </form>
+      {{end}}
+    </div>
+  </div>
+</section>
+{{end}}

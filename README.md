@@ -1,75 +1,82 @@
 # StreamFlix
 
-Professionelles Web-MVP für eine legale Netflix-ähnliche Streaming-Plattform mit Konten, Profilen, Medienkatalog, Watchlist, Videoplayer, Adminbereich und Stripe-Abos.
+Professionelles Web-MVP für eine legale Netflix-ähnliche Streaming-Plattform mit Konten, Profilen, Medienkatalog, Watchlist, Videoplayer, vollständigem Adminbereich und Stripe-Abos — als einzelnes, selbst-enthaltenes Go-Binary.
+
+## Warum Go statt Next.js/Prisma
+
+Frühere Versionen dieses Projekts liefen auf Next.js + Prisma. Für 32-Bit-Systeme stellte sich das als grundsätzliche Sackgasse heraus:
+
+- Node.js veröffentlicht keine `linux-ia32`-Builds mehr und hat `win32-ia32` ab Node 23 eingestellt.
+- Prismas native Query- und Schema-Engines wurden nie für 32-Bit-Architekturen veröffentlicht — unabhängig vom Engine-Typ (`binary`/`library`).
+
+Go dagegen kompiliert `GOOS=windows GOARCH=386` und `GOOS=linux GOARCH=386` offiziell und mit `CGO_ENABLED=0` zu einem einzelnen statisch gelinkten Binary **ohne jede Laufzeitabhängigkeit** — kein Node.js, keine native Engine, nichts zusätzlich zu installieren. Genau das macht dieses Projekt jetzt aus: Go-Server, serverseitig gerendertes HTML (`html/template`), PostgreSQL über den reinen Go-Treiber `pgx` (kein cgo), Templates/CSS/JS im Binary eingebettet (`embed`).
 
 ## Funktionen
-- Registrierung, Login, Logout mit bcrypt und HTTP-only JWT-Cookie
+
+- Registrierung, Login, Logout mit bcrypt und HTTP-only JWT-Cookie, CSRF-Schutz auf allen mutierenden Formularen
 - Rollen: USER und ADMIN
-- Profile, Watchlist, Watch Progress und Resume-Funktion
+- Profile, Watchlist, Watch Progress und Resume-Funktion (race-freier Upsert über partielle Unique-Indexe)
 - Filme, Serien, Staffeln, Episoden, Genres und Tags
 - Dunkles, responsives Streaming-UI mit Hero und Content-Reihen
-- Admin-Dashboard, Medienverwaltung und API für Nutzer/Abos/Statistiken
-- Stripe Checkout, Customer Portal und Webhook-Verarbeitung
-- Sicherheitsgrundlagen: serverseitige Validierung, Zugriffskontrolle, Webhook-Signatur, keine Secrets im Frontend
+- Vollständiger Adminbereich: Dashboard, Medien-CRUD, Genre-CRUD, Serien/Staffel/Episoden-CRUD, Nutzerverwaltung (Rollenwechsel), Abo-Übersicht, Analytics
+- Stripe Checkout, Customer Portal und signaturgeprüftes Webhook (kein unverifizierter Fallback)
+- Abo-Status wird bei jeder sicherheitsrelevanten Prüfung frisch aus der Datenbank gelesen, nie aus dem (bis zu 7 Tage alten) Session-Cookie
 
 ## Setup
+
+Voraussetzungen: Go 1.24+, PostgreSQL.
+
 ```bash
-npm install
 cp .env.example .env
-npx prisma migrate dev
-npx prisma db seed
-npm run dev
+# DATABASE_URL, JWT_SECRET etc. in .env anpassen
+go run ./cmd/seed      # legt Schema an (Migrationen laufen automatisch) und seeded Demo-Daten
+go run ./cmd/streamflix
 ```
 
-Admin-Testkonto nach Seed:
+Admin-Testkonto nach dem Seed:
 - E-Mail: `admin@streamflix.local`
 - Passwort: `StreamFlix123!`
 
 ## Wichtige ENV-Variablen
-Siehe `.env.example` für `DATABASE_URL`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL` und Stripe Keys/Price IDs.
 
+Siehe `.env.example`: `DATABASE_URL`, `JWT_SECRET`, `APP_URL`, `APP_ENV`, `PORT`, Stripe Keys/Price IDs, `STRIPE_WEBHOOK_SECRET`.
 
-## 32-Bit-Systeme
+`JWT_SECRET` ist außerhalb von `APP_ENV=development` zwingend erforderlich — der Server startet ohne gesetztes Secret in Produktion gar nicht erst. `STRIPE_WEBHOOK_SECRET` wird für jede Webhook-Verifikation gebraucht; ohne Secret schlägt die Signaturprüfung immer fehl (kein unsicherer Klartext-Fallback).
 
-Frühere Versionen dieses Projekts nutzten Prisma 5, dessen Query-Engine **grundsätzlich keine Binaries für 32-Bit-Architekturen** (`linux-ia32`, `windows-ia32`) veröffentlicht – unabhängig davon, ob `PRISMA_CLIENT_ENGINE_TYPE` auf `binary` oder `library` gesetzt wurde. Dadurch schlug jeder Datenbankzugriff auf 32-Bit-Systemen fehl.
+## Bauen (auch für 32-Bit)
 
-Seit dem Umstieg auf **Prisma ORM 7** läuft die Query-Engine als WASM + reines TypeScript (keine native, architekturspezifische Engine mehr) und verbindet sich über einen JS-Datenbanktreiber (`@prisma/adapter-pg` + `pg`). Damit läuft die App selbst (`npm run dev` / `npm start`) nun auch auf 32-Bit-Systemen, sofern die folgenden Voraussetzungen erfüllt sind:
-
-- **Betriebssystem:** 32-Bit-Windows 10/11. 32-Bit-Linux (`linux-ia32`) bleibt ungeeignet, weil aktuelle Node.js-Versionen dafür keine Builds mehr veröffentlichen.
-- **Node.js:** Node.js **20.19+ oder 22.12+** (32-Bit-Windows-Installer). Node.js hat ab Version 23 die 32-Bit-Windows-Builds eingestellt – nicht auf Node 23/24+ aktualisieren.
-- **Datenbank:** PostgreSQL möglichst extern betreiben, z. B. auf einem 64-Bit-Server, NAS, Docker-Host oder als Managed Database. Das entlastet den knappen Arbeitsspeicher des 32-Bit-Clients.
-
-**Wichtige Einschränkung:** Prisma's Schema-Engine – das native Werkzeug hinter `prisma migrate dev/deploy`, `prisma db push/pull` und `prisma studio` – veröffentlicht für Windows weiterhin nur ein 64-Bit-Binary. Diese Befehle schlagen auf 32-Bit-Windows voraussichtlich fehl. Migrationen und Seeds deshalb von einem 64-Bit-Rechner (oder WSL) gegen dieselbe Datenbank ausführen:
 ```bash
-# auf einem 64-Bit-Rechner, DATABASE_URL zeigt auf dieselbe (externe) DB
-npx prisma migrate deploy
-npx prisma db seed
-```
-Auf dem 32-Bit-Windows-Client selbst wird danach nur noch die App gestartet (kein `migrate`/`db push` nötig).
-
-Prüfung der lokalen Umgebung:
-```bash
-npm run doctor:32bit
+make build          # natives Binary in dist/
+make build-all       # windows/386, linux/386, windows/amd64, linux/amd64, darwin/arm64
 ```
 
-Empfohlene Startsequenz auf einem unterstützten 32-Bit-Windows-System (Datenbank ist bereits migriert/geseedet):
-```bash
-npm install
-set NODE_OPTIONS=--max-old-space-size=1024
-npm run doctor:32bit
-npm run prisma:generate
-npm run dev
-```
+Jedes erzeugte Binary ist einzeln lauffähig — keine weiteren Dateien, kein Node.js, keine DLLs. Auf dem 32-Bit-Zielsystem wird nur das jeweilige Binary plus eine erreichbare PostgreSQL-Datenbank benötigt.
 
-Für Produktion, Stripe-Webhooks, Transcoding oder größere Medienkataloge sollte weiterhin ein 64-Bit-Linux-Server verwendet werden. 32-Bit eignet sich nur als Entwicklungs- oder Demo-Client.
+## Deployment
+
+1. PostgreSQL bei einem Anbieter der Wahl anlegen (Neon, Supabase, Railway, eigener Server, …).
+2. Binary für die Zielplattform bauen (`make build-all` oder gezielt `GOOS=... GOARCH=... CGO_ENABLED=0 go build ./cmd/streamflix`).
+3. Umgebungsvariablen aus `.env.example` setzen, Binary starten — Migrationen laufen beim Start automatisch.
+4. `go run ./cmd/seed` einmalig gegen die Ziel-Datenbank ausführen (oder eigene Seed-Daten einspielen).
+5. Stripe Price IDs für Basic und Premium eintragen, Webhook `/api/webhooks/stripe` mit Signatur-Secret konfigurieren.
+6. Medien nur aus eigenen, lizenzierten oder frei nutzbaren Quellen veröffentlichen.
 
 ## Legale Nutzung
+
 StreamFlix ist ausschließlich für eigene Videos, lizenzierte Filme/Serien, frei verwendbare Inhalte und Creator-/Partner-Content mit Nutzungsrechten vorgesehen. Piraterie, DRM-Bypass und illegale Quellen sind ausgeschlossen.
 
-## Nächste Ausbaustufen
-- HLS/adaptive Bitrate, signierte CDN-URLs und Transcoding-Pipeline
-- Untertitel und mehrere Tonspuren
-- E-Mail-Verifizierung und Passwort-Reset-Mailer
-- Vollständige CRUD-Formulare für Serien/Staffeln/Episoden
-- Erweiterte Analytics und Empfehlungssysteme
-- Native Apps über dieselben APIs
+## Projektstruktur
+
+```
+cmd/streamflix/        Server-Entrypoint
+cmd/seed/               Demo-Daten-Seed
+internal/config/        Env-Konfiguration
+internal/db/             Postgres-Pool + eingebettete SQL-Migrationen
+internal/models/         Domänentypen
+internal/store/          Handgeschriebenes SQL pro Aggregat (kein ORM)
+internal/auth/           Sessions (JWT-Cookie), Passwort-Hashing, CSRF
+internal/billing/        Stripe-Integration
+internal/httpserver/     Routing, Handler, Validierung, Template-Rendering
+web/templates/           html/template-Seiten und Partials
+web/static/              CSS/JS, ins Binary eingebettet
+```

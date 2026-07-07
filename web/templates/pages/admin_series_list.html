@@ -1,0 +1,25 @@
+{{define "title"}}Serien – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <div class="toolbar">
+    <h1 style="margin:0">Serien</h1>
+    <a class="btn btn-primary" href="/admin/series/new">+ Neu</a>
+  </div>
+  <table>
+    <thead><tr><th>Titel</th><th>Staffeln</th><th></th></tr></thead>
+    <tbody>
+      {{range .Series}}
+      <tr>
+        <td>{{.Title}}</td>
+        <td>{{len .Seasons}}</td>
+        <td><a class="btn btn-ghost" href="/admin/series/{{.ID}}">Verwalten</a></td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  {{if not .Series}}<p class="card-meta">Noch keine Serien angelegt.</p>{{end}}
+</div>
+</div>
+{{end}}

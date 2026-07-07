@@ -1,0 +1,56 @@
+{{define "title"}}{{.Series.Title}} – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>{{.Series.Title}}</h1>
+
+  <form action="/admin/series/{{.Series.ID}}" method="post" style="max-width:520px;margin-bottom:2rem">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="title">Titel</label>
+      <input type="text" id="title" name="title" required minlength="2" value="{{.Series.Title}}">
+    </div>
+    <div class="field">
+      <label for="description">Beschreibung</label>
+      <textarea id="description" name="description" required minlength="10" rows="3">{{.Series.Description}}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Speichern</button>
+  </form>
+
+  <form action="/admin/series/{{.Series.ID}}/delete" method="post" onsubmit="return confirm('Serie wirklich löschen?')" style="margin-bottom:2rem">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <button type="submit" class="btn btn-ghost">Serie löschen</button>
+  </form>
+
+  <h2>Staffeln</h2>
+  <table>
+    <thead><tr><th>#</th><th>Titel</th><th>Episoden</th><th></th></tr></thead>
+    <tbody>
+      {{range .Series.Seasons}}
+      <tr>
+        <td>{{.SeasonNumber}}</td>
+        <td>{{.Title}}</td>
+        <td>{{len .Episodes}}</td>
+        <td><a class="btn btn-ghost" href="/admin/seasons/{{.ID}}">Verwalten</a></td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:1.5rem">Neue Staffel</h3>
+  <form action="/admin/series/{{.Series.ID}}/seasons" method="post" style="max-width:420px">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="seasonNumber">Staffelnummer</label>
+      <input type="number" id="seasonNumber" name="seasonNumber" required min="1" value="{{add (len .Series.Seasons) 1}}">
+    </div>
+    <div class="field">
+      <label for="stitle">Titel</label>
+      <input type="text" id="stitle" name="title" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Staffel anlegen</button>
+  </form>
+</div>
+</div>
+{{end}}

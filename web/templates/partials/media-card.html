@@ -1,0 +1,7 @@
+{{define "media-card"}}
+<a class="card card-hover" data-title="{{.Title}}" href="{{if eq .Type "SERIES"}}/series/{{.Slug}}{{else}}/movie/{{.Slug}}{{end}}">
+  <div class="card-poster" style="background-image:url('{{.ThumbnailURL}}')"></div>
+  <div class="card-title">{{.Title}}</div>
+  <div class="card-meta">{{.ReleaseYear}} · {{.AgeRating}}</div>
+</a>
+{{end}}

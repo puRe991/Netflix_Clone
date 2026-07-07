@@ -1,0 +1,40 @@
+{{define "title"}}Genres – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>Genres</h1>
+  <table style="max-width:520px">
+    <thead><tr><th>Name</th><th>Slug</th><th></th></tr></thead>
+    <tbody>
+      {{range .Genres}}
+      <tr>
+        <td>{{.Name}}</td>
+        <td>{{.Slug}}</td>
+        <td>
+          <form action="/admin/genres/{{.ID}}/delete" method="post" onsubmit="return confirm('Wirklich löschen?')">
+            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+            <button type="submit" class="btn btn-ghost">Löschen</button>
+          </form>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:2rem">Neues Genre</h2>
+  <form action="/admin/genres" method="post" style="max-width:420px">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required minlength="2">
+    </div>
+    <div class="field">
+      <label for="slug">Slug</label>
+      <input type="text" id="slug" name="slug" required pattern="[a-z0-9-]+">
+    </div>
+    <button type="submit" class="btn btn-primary">Anlegen</button>
+  </form>
+</div>
+</div>
+{{end}}

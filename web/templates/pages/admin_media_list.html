@@ -1,0 +1,32 @@
+{{define "title"}}Medien – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <div class="toolbar">
+    <h1 style="margin:0">Medien</h1>
+    <a class="btn btn-primary" href="/admin/media/new">+ Neu</a>
+  </div>
+  <table>
+    <thead><tr><th>Titel</th><th>Typ</th><th>Jahr</th><th>Veröffentlicht</th><th></th></tr></thead>
+    <tbody>
+      {{range .Media}}
+      <tr>
+        <td>{{.Title}}</td>
+        <td>{{.Type}}</td>
+        <td>{{.ReleaseYear}}</td>
+        <td>{{if .IsPublished}}<span class="badge badge-active">ja</span>{{else}}<span class="badge">nein</span>{{end}}</td>
+        <td style="display:flex;gap:.5rem">
+          <a class="btn btn-ghost" href="/admin/media/{{.ID}}/edit">Bearbeiten</a>
+          <form action="/admin/media/{{.ID}}/delete" method="post" onsubmit="return confirm('Wirklich löschen?')">
+            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+            <button type="submit" class="btn btn-ghost">Löschen</button>
+          </form>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+</div>
+{{end}}

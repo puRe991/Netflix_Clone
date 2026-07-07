@@ -1,0 +1,23 @@
+{{define "title"}}Registrieren – StreamFlix{{end}}
+{{define "content"}}
+<div class="form-card">
+  <h1>Konto erstellen</h1>
+  <form action="/api/auth/register" method="post">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="name">Name (optional)</label>
+      <input type="text" id="name" name="name" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="email">E-Mail</label>
+      <input type="email" id="email" name="email" required autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="password">Passwort</label>
+      <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%">Registrieren</button>
+  </form>
+  <p style="margin-top:1rem;font-size:.9rem;color:#a1a1aa">Schon ein Konto? <a href="/login" style="color:#dc2626">Einloggen</a></p>
+</div>
+{{end}}

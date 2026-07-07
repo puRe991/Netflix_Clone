@@ -1,0 +1,22 @@
+{{define "title"}}Browse – StreamFlix{{end}}
+{{define "content"}}
+{{if .Hero}}
+<section class="hero" style="background-image:url('{{.Hero.BannerURL}}')">
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <h1>{{.Hero.Title}}</h1>
+    <p>{{.Hero.Description}}</p>
+    <a class="btn btn-primary" href="{{if eq .Hero.Type "SERIES"}}/series/{{.Hero.Slug}}{{else}}/movie/{{.Hero.Slug}}{{end}}">▶ Ansehen</a>
+  </div>
+</section>
+{{end}}
+<div style="padding:0 1.5rem;margin-top:1.5rem">
+  <input type="text" id="search-input" class="search-input" placeholder="Titel suchen…" style="margin:0">
+</div>
+{{template "media-row" dict "Heading" "Weiterschauen" "Items" .Continue}}
+{{template "media-row" dict "Heading" "Beliebt" "Items" .Popular}}
+{{template "media-row" dict "Heading" "Filme" "Items" .Movies}}
+{{template "media-row" dict "Heading" "Serien" "Items" .Series}}
+{{template "media-row" dict "Heading" "Für dich empfohlen" "Items" .ForYou}}
+<script src="/static/js/search.js"></script>
+{{end}}

@@ -1,0 +1,33 @@
+{{define "title"}}Profile – StreamFlix{{end}}
+{{define "content"}}
+<div class="container" style="max-width:720px;padding-top:2rem">
+  <h1>Wer schaut gerade?</h1>
+  <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin:2rem 0">
+    {{range .Profiles}}
+    <div style="text-align:center;width:120px">
+      <div style="width:100px;height:100px;border-radius:.5rem;background:#27272a center/cover no-repeat{{if .AvatarURL}} url('{{.AvatarURL}}'){{end}};margin:0 auto .5rem"></div>
+      <div>{{.Name}}</div>
+      {{if .IsKidsProfile}}<div class="card-meta">Kids</div>{{end}}
+    </div>
+    {{end}}
+  </div>
+
+  <h2>Neues Profil</h2>
+  <form action="/api/profiles" method="post" class="form-card" style="margin:0">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required minlength="2" maxlength="40">
+    </div>
+    <div class="field">
+      <label for="avatarUrl">Avatar-URL (optional)</label>
+      <input type="url" id="avatarUrl" name="avatarUrl">
+    </div>
+    <div class="field field-checkbox">
+      <input type="checkbox" id="isKidsProfile" name="isKidsProfile">
+      <label for="isKidsProfile" style="margin:0">Kinderprofil</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Profil anlegen</button>
+  </form>
+</div>
+{{end}}

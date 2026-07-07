@@ -1,0 +1,82 @@
+{{define "title"}}{{if .Media}}Medium bearbeiten{{else}}Neues Medium{{end}} – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>{{if .Media}}Medium bearbeiten{{else}}Neues Medium{{end}}</h1>
+  <form action="{{if .Media}}/admin/media/{{.Media.ID}}{{else}}/admin/media{{end}}" method="post" style="max-width:640px">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="title">Titel</label>
+      <input type="text" id="title" name="title" required minlength="2" value="{{if .Media}}{{.Media.Title}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="slug">Slug</label>
+      <input type="text" id="slug" name="slug" required pattern="[a-z0-9-]+" value="{{if .Media}}{{.Media.Slug}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="description">Beschreibung</label>
+      <textarea id="description" name="description" required minlength="10" rows="4">{{if .Media}}{{.Media.Description}}{{end}}</textarea>
+    </div>
+    <div class="field">
+      <label for="type">Typ</label>
+      <select id="type" name="type">
+        <option value="MOVIE" {{if and .Media (eq .Media.Type "MOVIE")}}selected{{end}}>Film</option>
+        <option value="SERIES" {{if and .Media (eq .Media.Type "SERIES")}}selected{{end}}>Serie</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="thumbnailUrl">Thumbnail-URL</label>
+      <input type="url" id="thumbnailUrl" name="thumbnailUrl" required value="{{if .Media}}{{.Media.ThumbnailURL}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="bannerUrl">Banner-URL</label>
+      <input type="url" id="bannerUrl" name="bannerUrl" required value="{{if .Media}}{{.Media.BannerURL}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="trailerUrl">Trailer-URL (optional)</label>
+      <input type="url" id="trailerUrl" name="trailerUrl" value="{{if and .Media .Media.TrailerURL}}{{.Media.TrailerURL}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="videoUrl">Video-URL (nur Filme, optional)</label>
+      <input type="url" id="videoUrl" name="videoUrl" value="{{if and .Media .Media.VideoURL}}{{.Media.VideoURL}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="releaseYear">Erscheinungsjahr</label>
+      <input type="number" id="releaseYear" name="releaseYear" required min="1900" value="{{if .Media}}{{.Media.ReleaseYear}}{{else}}2026{{end}}">
+    </div>
+    <div class="field">
+      <label for="duration">Dauer in Minuten (nur Filme, optional)</label>
+      <input type="number" id="duration" name="duration" value="{{if and .Media .Media.Duration}}{{.Media.Duration}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="ageRating">Altersfreigabe</label>
+      <input type="text" id="ageRating" name="ageRating" required value="{{if .Media}}{{.Media.AgeRating}}{{else}}FSK 12{{end}}">
+    </div>
+    <div class="field">
+      <label for="language">Sprache</label>
+      <input type="text" id="language" name="language" value="{{if .Media}}{{.Media.Language}}{{else}}Deutsch{{end}}">
+    </div>
+    <div class="field">
+      <label for="tags">Tags (kommagetrennt)</label>
+      <input type="text" id="tags" name="tags" value="{{if .Media}}{{joinTags .Media.Tags}}{{end}}">
+    </div>
+    <div class="field">
+      <label>Genres</label>
+      {{$media := .Media}}
+      {{range .Genres}}
+      <div class="field-checkbox">
+        <input type="checkbox" name="genreIds" value="{{.ID}}" id="genre-{{.ID}}" {{if and $media (hasGenre $media.Genres .ID)}}checked{{end}}>
+        <label for="genre-{{.ID}}" style="margin:0">{{.Name}}</label>
+      </div>
+      {{end}}
+    </div>
+    <div class="field field-checkbox">
+      <input type="checkbox" id="isPublished" name="isPublished" {{if and .Media .Media.IsPublished}}checked{{end}}>
+      <label for="isPublished" style="margin:0">Veröffentlicht</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Speichern</button>
+  </form>
+</div>
+</div>
+{{end}}

@@ -1,5 +1,0 @@
-import { redirect } from "next/navigation";
-import { Navbar } from "@/components/layout/Navbar";
-import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-export default async function Profiles(){const session=await getSession();if(!session)redirect('/login');const profiles=await prisma.profile.findMany({where:{userId:session.id}});return <><Navbar/><main className="mx-auto min-h-screen max-w-5xl px-4 pt-28"><h1 className="text-4xl font-black">Wer schaut?</h1><div className="mt-8 grid gap-4 sm:grid-cols-3">{profiles.map(p=><a href="/browse" key={p.id} className="rounded-xl border border-white/10 bg-zinc-950 p-6 text-center hover:border-red-600"><div className="mx-auto mb-3 h-24 w-24 rounded-full bg-red-600/30"/><h2 className="font-bold">{p.name}</h2>{p.isKidsProfile&&<p className="text-sm text-zinc-400">Kinderprofil</p>}</a>)}</div><form action="/api/profiles" method="post" className="mt-8 flex gap-3"><input name="name" placeholder="Neues Profil" className="rounded bg-white/10 px-4 py-3"/><button className="rounded bg-red-600 px-5 py-3 font-bold">Anlegen</button></form></main></>}

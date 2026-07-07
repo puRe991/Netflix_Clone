@@ -1,0 +1,15 @@
+{{define "title"}}Analytics – StreamFlix{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>Analytics</h1>
+  <div class="stat-grid">
+    <div class="stat-tile"><div class="value">{{.Stats.Users}}</div><div class="label">Nutzer</div></div>
+    <div class="stat-tile"><div class="value">{{.Stats.ActiveSubscriptions}}</div><div class="label">Aktive Abos</div></div>
+    <div class="stat-tile"><div class="value">{{.Stats.Media}}</div><div class="label">Medien</div></div>
+    <div class="stat-tile"><div class="value">{{formatSeconds .Stats.WatchtimeSeconds}}</div><div class="label">Gesamt-Wiedergabezeit</div></div>
+  </div>
+</div>
+</div>
+{{end}}

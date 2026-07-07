@@ -1,5 +1,0 @@
-import { NextRequest, NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { stripe, priceIds } from "@/lib/stripe";
-export async function POST(req:NextRequest){const user=await requireUser();const form=await req.formData();const plan=String(form.get('plan')??'BASIC') as 'BASIC'|'PREMIUM';let dbUser=await prisma.user.findUniqueOrThrow({where:{id:user.id}});let customerId=dbUser.stripeCustomerId;if(!customerId){const customer=await stripe.customers.create({email:user.email,metadata:{userId:user.id}});customerId=customer.id;dbUser=await prisma.user.update({where:{id:user.id},data:{stripeCustomerId:customerId}})}const session=await stripe.checkout.sessions.create({mode:'subscription',customer:customerId,line_items:[{price:priceIds[plan],quantity:1}],success_url:`${process.env.NEXT_PUBLIC_APP_URL}/billing?success=1`,cancel_url:`${process.env.NEXT_PUBLIC_APP_URL}/pricing`,metadata:{userId:user.id,plan}});return NextResponse.redirect(session.url!,303)}

@@ -1,0 +1,29 @@
+{{define "title"}}{{.Media.Title}} – StreamFlix{{end}}
+{{define "content"}}
+<section class="hero" style="background-image:url('{{.Media.BannerURL}}')">
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <h1>{{.Media.Title}}</h1>
+    <p class="card-meta">{{.Media.ReleaseYear}} · {{.Media.AgeRating}}</p>
+    <p>{{.Media.Description}}</p>
+  </div>
+</section>
+<div class="container">
+  {{range .Media.Series.Seasons}}
+  <h2 style="margin-top:2rem">Staffel {{.SeasonNumber}} – {{.Title}}</h2>
+  <table>
+    <thead><tr><th>#</th><th>Titel</th><th>Dauer</th><th></th></tr></thead>
+    <tbody>
+      {{range .Episodes}}
+      <tr>
+        <td>{{.EpisodeNumber}}</td>
+        <td>{{.Title}}</td>
+        <td>{{.Duration}} Min.</td>
+        <td><a class="btn btn-primary" href="/watch/episode/{{.ID}}">▶ Ansehen</a></td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  {{end}}
+</div>
+{{end}}

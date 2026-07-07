@@ -1,4 +1,0 @@
-import Link from "next/link";
-
-const links = [["/admin", "Dashboard"], ["/admin/media", "Medien"], ["/admin/series", "Serien"], ["/admin/genres", "Genres"], ["/admin/users", "Nutzer"], ["/admin/subscriptions", "Abos"], ["/admin/analytics", "Analytics"]];
-export function AdminShell({ children }: { children: React.ReactNode }) { return <div className="min-h-screen bg-zinc-950 text-white"><aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-white/10 bg-black p-6 md:block"><Link href="/browse" className="text-2xl font-black text-red-600">StreamFlix</Link><nav className="mt-8 space-y-2">{links.map(([href, label]) => <Link key={href} href={href} className="block rounded px-3 py-2 hover:bg-white/10">{label}</Link>)}</nav></aside><main className="p-4 pt-20 md:ml-64 md:p-8">{children}</main></div>; }
