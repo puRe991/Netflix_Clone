@@ -1,6 +1,6 @@
 // Command seed populates the database with a demo admin account, genres,
-// a movie, and a series with one season of episodes — mirroring the
-// original prisma/seed.ts demo dataset.
+// a movie, and several series (each with one season of episodes) —
+// mirroring the original prisma/seed.ts demo dataset.
 package main
 
 import (
@@ -119,7 +119,53 @@ func run() error {
 		return err
 	}
 
+	if err := ensureSeries(ctx, st, storeMediaInputSeriesNordlicht(drama.ID),
+		"Nordlicht", "Staffel 1 einer Familiensaga im hohen Norden.",
+		"Nordlicht", "einer Familiensaga im hohen Norden"); err != nil {
+		return err
+	}
+
+	if err := ensureSeries(ctx, st, storeMediaInputSeriesKuestenwacht(doc.ID),
+		"Küstenwacht", "Staffel 1 der Doku-Serie über die Küstenwache.",
+		"Küstenwacht", "der Doku-Serie über die Küstenwache"); err != nil {
+		return err
+	}
+
 	log.Println("seed complete")
+	return nil
+}
+
+// ensureSeries creates a media + series + one season with 3 episodes if the
+// given media slug doesn't already exist.
+func ensureSeries(ctx context.Context, st *store.Store, in store.MediaInput, title, seasonDescription, logName, episodeContext string) error {
+	if _, err := st.GetMediaBySlug(ctx, in.Slug, false); err == nil {
+		return nil
+	} else if err != store.ErrNotFound {
+		return err
+	}
+
+	media, err := st.CreateMedia(ctx, in)
+	if err != nil {
+		return err
+	}
+	log.Printf("created series media %s", logName)
+
+	series, err := st.CreateSeries(ctx, media.ID, title, seasonDescription)
+	if err != nil {
+		return err
+	}
+	season, err := st.CreateSeason(ctx, series.ID, 1, "Staffel 1")
+	if err != nil {
+		return err
+	}
+	for n := 1; n <= 3; n++ {
+		if _, err := st.CreateEpisode(ctx, season.ID,
+			episodeTitle(n), "Kapitel "+strconv.Itoa(n)+" "+episodeContext+".", n, 596, sampleVideo,
+			in.ThumbnailURL, true); err != nil {
+			return err
+		}
+	}
+	log.Printf("created series %s with 3 episodes", logName)
 	return nil
 }
 
@@ -171,6 +217,42 @@ func storeMediaInputSeries(sciFiID string) store.MediaInput {
 		Tags:         []string{"featured", "space"},
 		IsPublished:  true,
 		GenreIDs:     []string{sciFiID},
+	}
+}
+
+func storeMediaInputSeriesNordlicht(dramaID string) store.MediaInput {
+	return store.MediaInput{
+		Title:        "Nordlicht",
+		Slug:         "nordlicht",
+		Description:  "Eine legale Drama-Serie über eine Familie, die einen Fischereibetrieb am Polarkreis führt.",
+		Type:         models.MediaSeries,
+		ThumbnailURL: "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=600&q=80",
+		BannerURL:    "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=1800&q=80",
+		TrailerURL:   strPtr(sampleVideo),
+		ReleaseYear:  2026,
+		AgeRating:    "FSK 12",
+		Language:     "Deutsch",
+		Tags:         []string{"family", "drama"},
+		IsPublished:  true,
+		GenreIDs:     []string{dramaID},
+	}
+}
+
+func storeMediaInputSeriesKuestenwacht(docID string) store.MediaInput {
+	return store.MediaInput{
+		Title:        "Küstenwacht",
+		Slug:         "kuestenwacht",
+		Description:  "Eine legale Doku-Serie, die die Einsätze der Küstenwache entlang der Nordsee begleitet.",
+		Type:         models.MediaSeries,
+		ThumbnailURL: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=600&q=80",
+		BannerURL:    "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1800&q=80",
+		TrailerURL:   strPtr(sampleVideo),
+		ReleaseYear:  2026,
+		AgeRating:    "FSK 6",
+		Language:     "Deutsch",
+		Tags:         []string{"documentary", "coast"},
+		IsPublished:  true,
+		GenreIDs:     []string{docID},
 	}
 }
 
