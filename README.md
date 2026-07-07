@@ -33,18 +33,26 @@ Siehe `.env.example` für `DATABASE_URL`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL` un
 
 Frühere Versionen dieses Projekts nutzten Prisma 5, dessen Query-Engine **grundsätzlich keine Binaries für 32-Bit-Architekturen** (`linux-ia32`, `windows-ia32`) veröffentlicht – unabhängig davon, ob `PRISMA_CLIENT_ENGINE_TYPE` auf `binary` oder `library` gesetzt wurde. Dadurch schlug jeder Datenbankzugriff auf 32-Bit-Systemen fehl.
 
-Seit dem Umstieg auf **Prisma ORM 7** läuft die Query-Engine als WASM + reines TypeScript (keine native, architekturspezifische Engine mehr) und verbindet sich über einen JS-Datenbanktreiber (`@prisma/adapter-pg` + `pg`). Damit funktioniert StreamFlix nun auch auf 32-Bit-Systemen, sofern die folgenden Voraussetzungen erfüllt sind:
+Seit dem Umstieg auf **Prisma ORM 7** läuft die Query-Engine als WASM + reines TypeScript (keine native, architekturspezifische Engine mehr) und verbindet sich über einen JS-Datenbanktreiber (`@prisma/adapter-pg` + `pg`). Damit läuft die App selbst (`npm run dev` / `npm start`) nun auch auf 32-Bit-Systemen, sofern die folgenden Voraussetzungen erfüllt sind:
 
 - **Betriebssystem:** 32-Bit-Windows 10/11. 32-Bit-Linux (`linux-ia32`) bleibt ungeeignet, weil aktuelle Node.js-Versionen dafür keine Builds mehr veröffentlichen.
 - **Node.js:** Node.js **20.19+ oder 22.12+** (32-Bit-Windows-Installer). Node.js hat ab Version 23 die 32-Bit-Windows-Builds eingestellt – nicht auf Node 23/24+ aktualisieren.
 - **Datenbank:** PostgreSQL möglichst extern betreiben, z. B. auf einem 64-Bit-Server, NAS, Docker-Host oder als Managed Database. Das entlastet den knappen Arbeitsspeicher des 32-Bit-Clients.
+
+**Wichtige Einschränkung:** Prisma's Schema-Engine – das native Werkzeug hinter `prisma migrate dev/deploy`, `prisma db push/pull` und `prisma studio` – veröffentlicht für Windows weiterhin nur ein 64-Bit-Binary. Diese Befehle schlagen auf 32-Bit-Windows voraussichtlich fehl. Migrationen und Seeds deshalb von einem 64-Bit-Rechner (oder WSL) gegen dieselbe Datenbank ausführen:
+```bash
+# auf einem 64-Bit-Rechner, DATABASE_URL zeigt auf dieselbe (externe) DB
+npx prisma migrate deploy
+npx prisma db seed
+```
+Auf dem 32-Bit-Windows-Client selbst wird danach nur noch die App gestartet (kein `migrate`/`db push` nötig).
 
 Prüfung der lokalen Umgebung:
 ```bash
 npm run doctor:32bit
 ```
 
-Empfohlene Startsequenz auf einem unterstützten 32-Bit-Windows-System:
+Empfohlene Startsequenz auf einem unterstützten 32-Bit-Windows-System (Datenbank ist bereits migriert/geseedet):
 ```bash
 npm install
 set NODE_OPTIONS=--max-old-space-size=1024
@@ -53,7 +61,7 @@ npm run prisma:generate
 npm run dev
 ```
 
-Für Produktion, Stripe-Webhooks, Transcoding oder größere Medienkataloge sollte weiterhin ein 64-Bit-Linux-Server verwendet werden. 32-Bit eignet sich nur als Entwicklungs- oder Demo-Umgebung.
+Für Produktion, Stripe-Webhooks, Transcoding oder größere Medienkataloge sollte weiterhin ein 64-Bit-Linux-Server verwendet werden. 32-Bit eignet sich nur als Entwicklungs- oder Demo-Client.
 
 ## Legale Nutzung
 StreamFlix ist ausschließlich für eigene Videos, lizenzierte Filme/Serien, frei verwendbare Inhalte und Creator-/Partner-Content mit Nutzungsrechten vorgesehen. Piraterie, DRM-Bypass und illegale Quellen sind ausgeschlossen.

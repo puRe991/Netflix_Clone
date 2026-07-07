@@ -51,7 +51,11 @@ if (isLinux32Bit) {
 if (isWindows32Bit) {
   add(
     "OK",
-    "32-bit Windows is supported. Prisma ORM 7 uses a WASM query compiler with a JS driver adapter (@prisma/adapter-pg) instead of a native, architecture-specific engine binary, so no ia32-specific workaround is required.",
+    "32-bit Windows can run the app itself. Prisma ORM 7 uses a WASM query compiler with a JS driver adapter (@prisma/adapter-pg) at runtime instead of a native, architecture-specific engine binary, so `npm run dev`/`npm start` do not need any ia32-specific workaround.",
+  );
+  add(
+    "WARN",
+    "Prisma's schema engine (used by `prisma migrate`, `db push`, `db pull`, `studio`) only ships a 64-bit Windows binary and will likely fail to start on 32-bit Windows. Run those commands from a 64-bit machine (or WSL) against the same database, then only run the app itself on the 32-bit machine.",
   );
 }
 
