@@ -28,11 +28,19 @@ if (Number.isNaN(nodeMajor) || nodeMajor < MIN_NODE_MAJOR) {
   add("OK", `Node.js version detected: ${versions.node}.`);
 }
 
+if (nodeMajor >= 23 && is32Bit) {
+  hasError = true;
+  add(
+    "ERROR",
+    `Node.js ${versions.node} has no 32-bit Windows build. Node.js dropped ia32 Windows support starting with Node.js 23; install Node.js 20.19+ or 22.12+ instead.`,
+  );
+}
+
 if (isLinux32Bit) {
   hasError = true;
   add(
     "ERROR",
-    "32-bit Linux is not a reliable target for this Next.js/Prisma stack because current Node.js and native package binaries are not consistently published for linux-ia32.",
+    "32-bit Linux (linux-ia32) is not a published Node.js target and is not supported by this stack.",
   );
   add(
     "INFO",
@@ -42,8 +50,8 @@ if (isLinux32Bit) {
 
 if (isWindows32Bit) {
   add(
-    "INFO",
-    "32-bit Windows can be used for local evaluation with the 32-bit Node.js installer. Keep Prisma engine type set to binary.",
+    "OK",
+    "32-bit Windows is supported. Prisma ORM 7 uses a WASM query compiler with a JS driver adapter (@prisma/adapter-pg) instead of a native, architecture-specific engine binary, so no ia32-specific workaround is required.",
   );
 }
 

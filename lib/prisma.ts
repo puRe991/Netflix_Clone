@@ -1,4 +1,5 @@
-import type { PrismaClient as PrismaClientType } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient, type PrismaClient as PrismaClientType } from "./generated/prisma/client";
 
 type PrismaLike = PrismaClientType;
 
@@ -21,9 +22,8 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaLike };
 
 function makeClient(): PrismaLike {
   if (skipDatabase) return createBuildMock();
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { PrismaClient } = require("@prisma/client") as { PrismaClient: new (options?: unknown) => PrismaClientType };
-  return new PrismaClient({ log: ["error", "warn"] });
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  return new PrismaClient({ adapter, log: ["error", "warn"] });
 }
 
 export const prisma = globalForPrisma.prisma ?? makeClient();
