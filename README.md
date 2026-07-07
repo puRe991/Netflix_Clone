@@ -31,20 +31,20 @@ Siehe `.env.example` für `DATABASE_URL`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL` un
 
 ## 32-Bit-Systeme
 
-StreamFlix nutzt Next.js, Prisma und native Build-/Datenbank-Komponenten. Für den produktiven Betrieb ist ein 64-Bit-System klar empfohlen. 32-Bit-Systeme haben wenig Adressraum und erhalten für moderne Node.js-Stacks nur eingeschränkt vorgebaute native Pakete.
+Frühere Versionen dieses Projekts nutzten Prisma 5, dessen Query-Engine **grundsätzlich keine Binaries für 32-Bit-Architekturen** (`linux-ia32`, `windows-ia32`) veröffentlicht – unabhängig davon, ob `PRISMA_CLIENT_ENGINE_TYPE` auf `binary` oder `library` gesetzt wurde. Dadurch schlug jeder Datenbankzugriff auf 32-Bit-Systemen fehl.
 
-Geeignete Software für einen 32-Bit-Testbetrieb:
-- **Betriebssystem:** 32-Bit-Windows 10/11 nur für lokale Tests. 32-Bit-Linux ist für diesen Stack nicht zuverlässig, weil aktuelle Node.js- und native Paket-Binaries für `linux-ia32` nicht durchgängig verfügbar sind.
-- **Node.js:** 32-Bit-Installer von Node.js 20 LTS oder neuer für Windows (`x86`/`ia32`).
+Seit dem Umstieg auf **Prisma ORM 7** läuft die Query-Engine als WASM + reines TypeScript (keine native, architekturspezifische Engine mehr) und verbindet sich über einen JS-Datenbanktreiber (`@prisma/adapter-pg` + `pg`). Damit funktioniert StreamFlix nun auch auf 32-Bit-Systemen, sofern die folgenden Voraussetzungen erfüllt sind:
+
+- **Betriebssystem:** 32-Bit-Windows 10/11. 32-Bit-Linux (`linux-ia32`) bleibt ungeeignet, weil aktuelle Node.js-Versionen dafür keine Builds mehr veröffentlichen.
+- **Node.js:** Node.js **20.19+ oder 22.12+** (32-Bit-Windows-Installer). Node.js hat ab Version 23 die 32-Bit-Windows-Builds eingestellt – nicht auf Node 23/24+ aktualisieren.
 - **Datenbank:** PostgreSQL möglichst extern betreiben, z. B. auf einem 64-Bit-Server, NAS, Docker-Host oder als Managed Database. Das entlastet den knappen Arbeitsspeicher des 32-Bit-Clients.
-- **Prisma:** Die vorhandenen Skripte setzen auf 32-Bit-Systemen automatisch Prisma Binary Engines, damit keine Node-API-Engine mit inkompatibler nativer Bindung erzwungen wird.
 
 Prüfung der lokalen Umgebung:
 ```bash
 npm run doctor:32bit
 ```
 
-Empfohlene Startsequenz auf einem unterstützten 32-Bit-Windows-Testsystem:
+Empfohlene Startsequenz auf einem unterstützten 32-Bit-Windows-System:
 ```bash
 npm install
 set NODE_OPTIONS=--max-old-space-size=1024
@@ -53,7 +53,7 @@ npm run prisma:generate
 npm run dev
 ```
 
-Für Produktion, Stripe-Webhooks, Transcoding oder größere Medienkataloge sollte ein 64-Bit-Linux-Server verwendet werden. 32-Bit eignet sich hier nur als eingeschränkte Entwicklungs- oder Demo-Umgebung.
+Für Produktion, Stripe-Webhooks, Transcoding oder größere Medienkataloge sollte weiterhin ein 64-Bit-Linux-Server verwendet werden. 32-Bit eignet sich nur als Entwicklungs- oder Demo-Umgebung.
 
 ## Legale Nutzung
 StreamFlix ist ausschließlich für eigene Videos, lizenzierte Filme/Serien, frei verwendbare Inhalte und Creator-/Partner-Content mit Nutzungsrechten vorgesehen. Piraterie, DRM-Bypass und illegale Quellen sind ausgeschlossen.
