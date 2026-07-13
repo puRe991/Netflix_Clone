@@ -1,13 +1,13 @@
-{{define "title"}}Profile – StreamFlix{{end}}
+{{define "title"}}Profile – Velvet{{end}}
 {{define "content"}}
 <div class="container" style="max-width:720px;padding-top:2rem">
   <h1>Wer schaut gerade?</h1>
   <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin:2rem 0">
     {{range .Profiles}}
-    <div style="text-align:center;width:120px">
-      <div style="width:100px;height:100px;border-radius:.5rem;background:#27272a center/cover no-repeat{{if .AvatarURL}} url('{{.AvatarURL}}'){{end}};margin:0 auto .5rem"></div>
+    <div style="text-align:center;width:120px;cursor:pointer">
+      <div class="profile-avatar" style="background:var(--surface-raised) center/cover no-repeat{{if .AvatarURL}} url('{{.AvatarURL}}'){{end}}"></div>
       <div>{{.Name}}</div>
-      {{if .IsKidsProfile}}<div class="card-meta">Kids</div>{{end}}
+      {{if .IsKidsProfile}}<div class="kids-badge">KIDS</div>{{end}}
     </div>
     {{end}}
   </div>

@@ -5,7 +5,7 @@
 <div class="admin-main">
   <h1>Neue Serie</h1>
   {{if not .AvailableMedia}}
-  <p class="card-meta">Keine passenden Medien gefunden. Lege zuerst unter <a href="/admin/media/new" style="color:#dc2626">Medien &rarr; Neu</a> einen Eintrag mit Typ "Serie" an.</p>
+  <p class="card-meta">Keine passenden Medien gefunden. Lege zuerst unter <a href="/admin/media/new" style="color:var(--accent)">Medien &rarr; Neu</a> einen Eintrag mit Typ "Serie" an.</p>
   {{else}}
   <form action="/admin/series" method="post" style="max-width:520px">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">

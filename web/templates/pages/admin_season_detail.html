@@ -3,7 +3,7 @@
 <div class="admin-shell">
 {{template "admin-sidebar" .}}
 <div class="admin-main">
-  <p><a href="/admin/series/{{.Series.ID}}" style="color:#dc2626">&larr; {{.Series.Title}}</a></p>
+  <p><a href="/admin/series/{{.Series.ID}}" style="color:var(--accent)">&larr; {{.Series.Title}}</a></p>
   <h1>Staffel {{.Season.SeasonNumber}} – {{.Season.Title}}</h1>
 
   <form action="/admin/seasons/{{.Season.ID}}" method="post" style="max-width:420px;margin-bottom:1.5rem">

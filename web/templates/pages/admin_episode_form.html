@@ -3,7 +3,7 @@
 <div class="admin-shell">
 {{template "admin-sidebar" .}}
 <div class="admin-main">
-  <p><a href="/admin/seasons/{{.Episode.SeasonID}}" style="color:#dc2626">&larr; Zur Staffel</a></p>
+  <p><a href="/admin/seasons/{{.Episode.SeasonID}}" style="color:var(--accent)">&larr; Zur Staffel</a></p>
   <h1>Episode bearbeiten</h1>
   <form action="/admin/episodes/{{.Episode.ID}}" method="post" style="max-width:520px">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
