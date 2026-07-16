@@ -9,6 +9,25 @@
     <div class="stat-tile"><div class="value">{{.Stats.ActiveSubscriptions}}</div><div class="label">Aktive Abos</div></div>
     <div class="stat-tile"><div class="value">{{.Stats.Media}}</div><div class="label">Medien</div></div>
   </div>
+
+  <h2>Ablaufende Lizenzen (nächste 30 Tage)</h2>
+  {{if .ExpiringRights}}
+  <table>
+    <thead><tr><th>Titel</th><th>Quelle</th><th>Rechteinhaber</th><th>Gültig bis</th></tr></thead>
+    <tbody>
+      {{range .ExpiringRights}}
+      <tr>
+        <td>{{if .Media}}<a href="/admin/media/{{.Media.ID}}/edit">{{.Media.Title}}</a>{{end}}</td>
+        <td>{{.Source}}</td>
+        <td>{{if .RightsHolder}}{{.RightsHolder}}{{end}}</td>
+        <td><span class="badge {{if .Expired}}badge-expired{{else}}badge-warning{{end}}">{{.ValidUntil.Format "02.01.2006"}}</span></td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  {{else}}
+  <p class="card-meta">Keine ablaufenden Lizenzen in den nächsten 30 Tagen.</p>
+  {{end}}
 </div>
 </div>
 {{end}}

@@ -87,6 +87,43 @@ type Media struct {
 
 	Genres []Genre
 	Series *Series
+	Rights *RightsInfo
+}
+
+type RightsSource string
+
+const (
+	RightsPublicDomain    RightsSource = "PUBLIC_DOMAIN"
+	RightsCreativeCommons RightsSource = "CREATIVE_COMMONS"
+	RightsRevenueShare    RightsSource = "REVENUE_SHARE"
+	RightsOwned           RightsSource = "OWNED"
+	RightsLicensed        RightsSource = "LICENSED"
+)
+
+// RightsInfo tracks who holds the streaming rights to a Media title and for
+// how long. It's a 1:1 extension of Media, so it's optional (nil means no
+// rights tracked yet) rather than embedded directly.
+type RightsInfo struct {
+	ID              string
+	MediaID         string
+	Source          RightsSource
+	RightsHolder    *string
+	LicenseDocURL   *string
+	RevenueSharePct *float64
+	TerritoryLimit  *string
+	ValidFrom       time.Time
+	ValidUntil      *time.Time // nil = unbefristet
+	Notes           *string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+
+	Media *Media
+}
+
+// Expired reports whether this rights grant has passed its ValidUntil date.
+// Unbefristete (ValidUntil == nil) grants never expire.
+func (r RightsInfo) Expired() bool {
+	return r.ValidUntil != nil && r.ValidUntil.Before(time.Now())
 }
 
 type Series struct {

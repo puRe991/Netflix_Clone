@@ -27,6 +27,9 @@ func (s *Server) APIGetWatch(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	if err := s.assertRightsCurrent(r.Context(), media.ID); err != nil {
+		return err
+	}
 
 	JSON(w, http.StatusOK, map[string]any{
 		"id":         media.ID,

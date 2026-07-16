@@ -502,6 +502,8 @@ th {
 
 .badge-admin { background: var(--accent-soft); color: oklch(0.8 0.1 25); }
 .badge-active { background: oklch(0.6 0.15 140 / 0.2); color: oklch(0.75 0.15 140); }
+.badge-warning { background: oklch(0.75 0.15 80 / 0.2); color: oklch(0.8 0.15 80); }
+.badge-expired { background: oklch(0.6 0.2 25 / 0.2); color: oklch(0.7 0.2 25); }
 
 .toolbar {
   display: flex;
