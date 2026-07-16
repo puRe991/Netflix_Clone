@@ -57,6 +57,12 @@ func (s *Server) AdminMediaEditFormPage(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		return err
 	}
+	rights, err := s.Store.GetRightsInfoByMediaID(r.Context(), media.ID)
+	if err == nil {
+		media.Rights = &rights
+	} else if err != store.ErrNotFound {
+		return err
+	}
 	return s.render(w, r, "admin_media_form.html", adminMediaFormData{PageData: s.basePageData(w, r), Media: &media, Genres: genres})
 }
 

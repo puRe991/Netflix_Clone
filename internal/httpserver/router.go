@@ -43,6 +43,8 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /admin/media/{id}/edit", s.handler((*Server).AdminMediaEditFormPage))
 	mux.HandleFunc("POST /admin/media/{id}/delete", s.handler((*Server).AdminMediaDelete))
 	mux.HandleFunc("POST /admin/media/{id}", s.handler((*Server).AdminMediaUpdate))
+	mux.HandleFunc("POST /admin/media/{id}/rights", s.handler((*Server).AdminRightsUpsert))
+	mux.HandleFunc("POST /admin/media/{id}/rights/delete", s.handler((*Server).AdminRightsDelete))
 
 	mux.HandleFunc("GET /admin/genres", s.handler((*Server).AdminGenresPage))
 	mux.HandleFunc("POST /admin/genres/{id}/delete", s.handler((*Server).AdminGenreDelete))

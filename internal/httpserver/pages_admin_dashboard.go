@@ -8,8 +8,13 @@ import (
 
 type adminStatsData struct {
 	PageData
-	Stats models.Stats
+	Stats          models.Stats
+	ExpiringRights []models.RightsInfo
 }
+
+// expiringRightsWindowDays is how far ahead the dashboard warns about
+// licenses running out.
+const expiringRightsWindowDays = 30
 
 func (s *Server) AdminDashboardPage(w http.ResponseWriter, r *http.Request) error {
 	if _, err := s.Sessions.RequireAdmin(r); err != nil {
@@ -19,7 +24,15 @@ func (s *Server) AdminDashboardPage(w http.ResponseWriter, r *http.Request) erro
 	if err != nil {
 		return err
 	}
-	return s.render(w, r, "admin_dashboard.html", adminStatsData{PageData: s.basePageData(w, r), Stats: stats})
+	expiringRights, err := s.Store.ListExpiringRights(r.Context(), expiringRightsWindowDays)
+	if err != nil {
+		return err
+	}
+	return s.render(w, r, "admin_dashboard.html", adminStatsData{
+		PageData:       s.basePageData(w, r),
+		Stats:          stats,
+		ExpiringRights: expiringRights,
+	})
 }
 
 func (s *Server) AdminAnalyticsPage(w http.ResponseWriter, r *http.Request) error {

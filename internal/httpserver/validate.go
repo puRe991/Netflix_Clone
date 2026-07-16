@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var slugPattern = regexp.MustCompile(`^[a-z0-9-]+$`)
@@ -106,4 +107,43 @@ func requireIntMin(field string, n, min int) error {
 		return validationErr(field + " muss mindestens " + strconv.Itoa(min) + " sein")
 	}
 	return nil
+}
+
+func optionalString(v string) *string {
+	v = strings.TrimSpace(v)
+	if v == "" {
+		return nil
+	}
+	return &v
+}
+
+func coerceOptionalFloat(field, v string) (*float64, error) {
+	v = strings.TrimSpace(v)
+	if v == "" {
+		return nil, nil
+	}
+	f, err := strconv.ParseFloat(v, 64)
+	if err != nil {
+		return nil, validationErr(field + " muss eine Zahl sein")
+	}
+	return &f, nil
+}
+
+func requireDate(field, v string) (time.Time, error) {
+	t, err := time.Parse("2006-01-02", strings.TrimSpace(v))
+	if err != nil {
+		return time.Time{}, validationErr(field + " muss ein gültiges Datum sein")
+	}
+	return t, nil
+}
+
+func optionalDate(field, v string) (*time.Time, error) {
+	if strings.TrimSpace(v) == "" {
+		return nil, nil
+	}
+	t, err := requireDate(field, v)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
 }

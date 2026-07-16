@@ -77,6 +77,62 @@
     </div>
     <button type="submit" class="btn btn-primary">Speichern</button>
   </form>
+
+  {{if .Media}}
+  <h2 style="margin-top:2.5rem">Rechte & Lizenz</h2>
+  <form action="/admin/media/{{.Media.ID}}/rights" method="post" style="max-width:640px">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="source">Rechtequelle</label>
+      <select id="source" name="source" required>
+        <option value="">– auswählen –</option>
+        <option value="PUBLIC_DOMAIN" {{if and .Media.Rights (eq .Media.Rights.Source "PUBLIC_DOMAIN")}}selected{{end}}>Gemeinfrei</option>
+        <option value="CREATIVE_COMMONS" {{if and .Media.Rights (eq .Media.Rights.Source "CREATIVE_COMMONS")}}selected{{end}}>Creative Commons</option>
+        <option value="REVENUE_SHARE" {{if and .Media.Rights (eq .Media.Rights.Source "REVENUE_SHARE")}}selected{{end}}>Umsatzbeteiligung</option>
+        <option value="OWNED" {{if and .Media.Rights (eq .Media.Rights.Source "OWNED")}}selected{{end}}>Eigenproduktion</option>
+        <option value="LICENSED" {{if and .Media.Rights (eq .Media.Rights.Source "LICENSED")}}selected{{end}}>Lizenziert</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="rightsHolder">Rechteinhaber (optional)</label>
+      <input type="text" id="rightsHolder" name="rightsHolder" value="{{if and .Media.Rights .Media.Rights.RightsHolder}}{{.Media.Rights.RightsHolder}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="licenseDocUrl">Lizenzdokument-URL (optional)</label>
+      <input type="url" id="licenseDocUrl" name="licenseDocUrl" value="{{if and .Media.Rights .Media.Rights.LicenseDocURL}}{{.Media.Rights.LicenseDocURL}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="revenueSharePct">Umsatzbeteiligung in % (optional)</label>
+      <input type="number" id="revenueSharePct" name="revenueSharePct" min="0" max="100" step="0.01" value="{{if and .Media.Rights .Media.Rights.RevenueSharePct}}{{.Media.Rights.RevenueSharePct}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="territoryLimit">Gebietsbeschränkung (optional)</label>
+      <input type="text" id="territoryLimit" name="territoryLimit" placeholder="z. B. DACH, weltweit" value="{{if and .Media.Rights .Media.Rights.TerritoryLimit}}{{.Media.Rights.TerritoryLimit}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="validFrom">Gültig ab</label>
+      <input type="date" id="validFrom" name="validFrom" required value="{{if .Media.Rights}}{{.Media.Rights.ValidFrom.Format "2006-01-02"}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="validUntil">Gültig bis (leer = unbefristet)</label>
+      <input type="date" id="validUntil" name="validUntil" value="{{if and .Media.Rights .Media.Rights.ValidUntil}}{{.Media.Rights.ValidUntil.Format "2006-01-02"}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="notes">Notizen (optional)</label>
+      <textarea id="notes" name="notes" rows="3">{{if and .Media.Rights .Media.Rights.Notes}}{{.Media.Rights.Notes}}{{end}}</textarea>
+    </div>
+    {{if and .Media.Rights .Media.Rights.Expired}}
+    <p class="card-meta" style="color:oklch(0.7 0.2 30)">Lizenz abgelaufen – Streaming ist derzeit gesperrt.</p>
+    {{end}}
+    <button type="submit" class="btn btn-primary">Rechte speichern</button>
+  </form>
+  {{if .Media.Rights}}
+  <form action="/admin/media/{{.Media.ID}}/rights/delete" method="post" onsubmit="return confirm('Rechtedaten wirklich löschen?')" style="margin-top:.75rem">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <button type="submit" class="btn btn-ghost">Rechtedaten löschen</button>
+  </form>
+  {{end}}
+  {{end}}
 </div>
 </div>
 {{end}}

@@ -40,6 +40,9 @@ func (s *Server) WatchMoviePage(w http.ResponseWriter, r *http.Request) error {
 	if media.VideoURL == nil || *media.VideoURL == "" {
 		return store.ErrNotFound
 	}
+	if err := s.assertRightsCurrent(r.Context(), media.ID); err != nil {
+		return err
+	}
 
 	profile, err := s.Store.FirstOrCreateProfile(r.Context(), user.ID, displayName(user))
 	if err != nil {
@@ -92,6 +95,9 @@ func (s *Server) WatchEpisodePage(w http.ResponseWriter, r *http.Request) error 
 	}
 	media, err := s.Store.GetMediaByID(r.Context(), series.MediaID)
 	if err != nil {
+		return err
+	}
+	if err := s.assertRightsCurrent(r.Context(), media.ID); err != nil {
 		return err
 	}
 
