@@ -50,7 +50,10 @@ if errorlevel 1 (
         set /p INSTALL_PG="PostgreSQL jetzt ueber winget installieren? (j/N): "
         if /i "!INSTALL_PG!"=="j" (
             echo [INFO] Installiere PostgreSQL ueber winget ...
-            winget install --id PostgreSQL.PostgreSQL -e --accept-source-agreements --accept-package-agreements
+            rem Die ID "PostgreSQL.PostgreSQL" ist mehrdeutig (mehrere Versionen
+            rem teilen sich diese ID) und wird von winget nicht gefunden. Es muss
+            rem eine versionsspezifische ID verwendet werden.
+            winget install --id PostgreSQL.PostgreSQL.18 -e --accept-source-agreements --accept-package-agreements
             if errorlevel 1 (
                 echo [FEHLER] PostgreSQL-Installation fehlgeschlagen.
                 echo Bitte manuell installieren: https://www.postgresql.org/download/
@@ -59,6 +62,9 @@ if errorlevel 1 (
             )
             echo [HINWEIS] PostgreSQL wurde installiert. Bitte Datenbank/Nutzer gemaess
             echo DATABASE_URL in .env anlegen, bevor der Server gestartet wird.
+            echo [HINWEIS] Falls "psql" jetzt noch nicht gefunden wird: Dieses Fenster
+            echo schliessen und start.bat erneut ausfuehren, damit die PATH-Aenderung
+            echo wirksam wird.
         ) else (
             echo [HINWEIS] Ohne PostgreSQL funktioniert der Server nicht.
             echo Stelle sicher, dass eine erreichbare Datenbank ^(z.B. remote^) existiert.
