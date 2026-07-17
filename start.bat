@@ -15,6 +15,10 @@ if errorlevel 1 (
     set HAS_WINGET=1
 )
 
+rem --- Echtes 32-Bit-Windows erkennen (nicht nur eine 32-Bit-cmd auf 64-Bit-Windows) ---
+set IS_32BIT=0
+if /i "%PROCESSOR_ARCHITECTURE%"=="x86" if not defined PROCESSOR_ARCHITEW6432 set IS_32BIT=1
+
 rem --- Go pruefen, bei Bedarf installieren ---
 where go >nul 2>nul
 if errorlevel 1 (
@@ -22,7 +26,7 @@ if errorlevel 1 (
     if "!HAS_WINGET!"=="1" (
         echo [INFO] Installiere Go ueber winget ...
         winget install --id GoLang.Go -e --accept-source-agreements --accept-package-agreements
-        if errorlevel 1 (
+        if !ERRORLEVEL! neq 0 (
             echo [FEHLER] Go-Installation ueber winget fehlgeschlagen.
             echo Bitte manuell installieren: https://go.dev/dl/
             pause
@@ -46,7 +50,17 @@ rem --- PostgreSQL-Client (psql) pruefen, bei Bedarf installieren ---
 where psql >nul 2>nul
 if errorlevel 1 (
     echo [INFO] PostgreSQL-Client ^(psql^) wurde nicht gefunden.
-    if "!HAS_WINGET!"=="1" (
+    if "!IS_32BIT!"=="1" (
+        rem PostgreSQL liefert seit Jahren keine 32-Bit-Windows-Installer mehr
+        rem (auch nicht ueber winget) - ein lokaler Auto-Install kann auf einem
+        rem echten 32-Bit-System also grundsaetzlich nicht funktionieren.
+        echo [HINWEIS] Dieses System ist 32-Bit. PostgreSQL bietet dafuer keine
+        echo Installer mehr an ^(auch winget findet keinen passenden^) - eine lokale
+        echo Installation ist hier nicht moeglich.
+        echo [HINWEIS] Nutze stattdessen eine gehostete PostgreSQL-Datenbank
+        echo ^(z.B. Neon, Supabase, Railway, eigener 64-Bit-Server^) und trage deren
+        echo Verbindungs-URL als DATABASE_URL in .env ein.
+    ) else if "!HAS_WINGET!"=="1" (
         set /p INSTALL_PG="PostgreSQL jetzt ueber winget installieren? (j/N): "
         if /i "!INSTALL_PG!"=="j" (
             echo [INFO] Installiere PostgreSQL ueber winget ...
@@ -54,17 +68,24 @@ if errorlevel 1 (
             rem teilen sich diese ID) und wird von winget nicht gefunden. Es muss
             rem eine versionsspezifische ID verwendet werden.
             winget install --id PostgreSQL.PostgreSQL.18 -e --accept-source-agreements --accept-package-agreements
-            if errorlevel 1 (
-                echo [FEHLER] PostgreSQL-Installation fehlgeschlagen.
+            if !ERRORLEVEL! neq 0 (
+                echo [FEHLER] PostgreSQL-Installation ueber winget fehlgeschlagen.
                 echo Bitte manuell installieren: https://www.postgresql.org/download/
+                echo oder eine gehostete Datenbank ^(Neon, Supabase, Railway, ...^) nutzen
+                echo und DATABASE_URL in .env entsprechend setzen.
                 pause
                 exit /b 1
             )
-            echo [HINWEIS] PostgreSQL wurde installiert. Bitte Datenbank/Nutzer gemaess
-            echo DATABASE_URL in .env anlegen, bevor der Server gestartet wird.
-            echo [HINWEIS] Falls "psql" jetzt noch nicht gefunden wird: Dieses Fenster
-            echo schliessen und start.bat erneut ausfuehren, damit die PATH-Aenderung
-            echo wirksam wird.
+            where psql >nul 2>nul
+            if !ERRORLEVEL! neq 0 (
+                echo [WARNUNG] winget meldet Erfolg, aber "psql" ist noch nicht im PATH.
+                echo Dieses Fenster schliessen und start.bat erneut ausfuehren, damit die
+                echo PATH-Aenderung wirksam wird.
+            ) else (
+                echo [OK] PostgreSQL wurde installiert.
+            )
+            echo [HINWEIS] Bitte Datenbank/Nutzer gemaess DATABASE_URL in .env anlegen,
+            echo bevor der Server gestartet wird.
         ) else (
             echo [HINWEIS] Ohne PostgreSQL funktioniert der Server nicht.
             echo Stelle sicher, dass eine erreichbare Datenbank ^(z.B. remote^) existiert.
@@ -95,7 +116,7 @@ if not exist ".env" (
 rem --- Go-Modulabhaengigkeiten sicherstellen ---
 echo [INFO] Pruefe Go-Modulabhaengigkeiten ...
 go mod download
-if errorlevel 1 (
+if !ERRORLEVEL! neq 0 (
     echo [FEHLER] Go-Abhaengigkeiten konnten nicht geladen werden.
     pause
     exit /b 1
@@ -107,7 +128,7 @@ set /p RUN_SEED="Datenbank-Migrationen/Demo-Daten jetzt seeden? (j/N): "
 if /i "%RUN_SEED%"=="j" (
     echo [INFO] Fuehre Seed aus...
     go run ./cmd/seed
-    if errorlevel 1 (
+    if !ERRORLEVEL! neq 0 (
         echo [FEHLER] Seed fehlgeschlagen. Ist PostgreSQL erreichbar und DATABASE_URL korrekt?
         pause
         exit /b 1
