@@ -9,7 +9,7 @@
     <tbody>
       {{range .Teams}}
       <tr>
-        <td><a href="/team/{{.Slug}}">{{.Name}}</a></td>
+        <td><a href="/team/{{.Slug}}"><img class="team-icon" src="{{teamLogo .}}" alt="" width="22" height="22" loading="lazy">{{.Name}}</a></td>
         <td>{{derefStr .ShortName}}</td>
         <td>{{derefStr .Country}}</td>
         <td>{{.Slug}}</td>

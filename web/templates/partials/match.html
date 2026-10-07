@@ -1,9 +1,9 @@
 {{/* match-teams: "Team A vs. Team B" with links; .Match plus .Hide (spoilers hidden). */}}
 {{define "match-teams"}}
 <span class="match-teams">
-  <a href="/team/{{.Match.TeamA.Slug}}" class="{{if and (not .Hide) (eq .Match.WinnerID .Match.TeamAID)}}match-winner{{end}}">{{.Match.TeamA.Name}}</a>
+  <a href="/team/{{.Match.TeamA.Slug}}" class="{{if and (not .Hide) (eq .Match.WinnerID .Match.TeamAID)}}match-winner{{end}}"><img class="team-icon" src="{{teamLogo .Match.TeamA}}" alt="" width="22" height="22" loading="lazy">{{.Match.TeamA.Name}}</a>
   <span class="match-vs">vs.</span>
-  <a href="/team/{{.Match.TeamB.Slug}}" class="{{if and (not .Hide) (eq .Match.WinnerID .Match.TeamBID)}}match-winner{{end}}">{{.Match.TeamB.Name}}</a>
+  <a href="/team/{{.Match.TeamB.Slug}}" class="{{if and (not .Hide) (eq .Match.WinnerID .Match.TeamBID)}}match-winner{{end}}"><img class="team-icon" src="{{teamLogo .Match.TeamB}}" alt="" width="22" height="22" loading="lazy">{{.Match.TeamB.Name}}</a>
 </span>
 {{end}}
 
@@ -39,8 +39,8 @@
 
 {{/* match-card: a match tile for browse rows; .TM is a models.TeamMatch, .Hide spoilers. */}}
 {{define "match-card"}}
-<a class="card card-hover" data-title="{{.TM.MediaTitle}}" href="/watch/episode/{{.TM.Match.EpisodeID}}">
-  <div class="card-poster" style="background-image:url('{{.TM.ThumbnailURL}}')"></div>
+<a class="card card-wide card-hover" data-title="{{.TM.MediaTitle}}" href="/watch/episode/{{.TM.Match.EpisodeID}}">
+  <div class="card-poster" style="background-image:url('/img/episode/{{.TM.Match.EpisodeID}}.svg')"></div>
   <div class="card-title">{{.TM.Match.TeamA.Name}} vs. {{.TM.Match.TeamB.Name}}</div>
   <div class="card-meta">{{.TM.MediaTitle}} · {{.TM.Match.Stage}}{{if not .Hide}}{{if .TM.Match.HasResult}} · {{derefInt .TM.Match.ScoreA}}:{{derefInt .TM.Match.ScoreB}}{{end}}{{end}}</div>
 </a>

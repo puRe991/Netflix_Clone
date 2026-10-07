@@ -723,3 +723,64 @@ th {
 .season-block[open] > summary h2::before {
   content: "▾";
 }
+
+/* Generated eSports artwork */
+.team-icon {
+  width: 22px;
+  height: 22px;
+  margin-right: .35rem;
+  vertical-align: -5px;
+  object-fit: contain;
+}
+
+.team-badge-lg {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+
+.team-tile-head {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.team-tile-head img {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  object-fit: contain;
+}
+
+.ep-thumb-cell {
+  width: 176px;
+}
+
+.ep-thumb {
+  display: block;
+  width: 160px;
+  height: 90px;
+  border-radius: .35rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.card-wide {
+  width: 320px;
+}
+
+.card-wide .card-poster {
+  width: 320px;
+  height: 180px;
+}
+
+.yt-consent {
+  background-size: cover;
+  background-position: center;
+}
+
+@media (max-width: 700px) {
+  .ep-thumb-cell {
+    display: none;
+  }
+}

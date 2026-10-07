@@ -33,6 +33,8 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /teams/{id}/follow", s.handler((*Server).FollowTeam))
 	mux.HandleFunc("POST /teams/{id}/unfollow", s.handler((*Server).UnfollowTeam))
 	mux.HandleFunc("POST /spoilers", s.handler((*Server).SetSpoilers))
+	mux.HandleFunc("GET /img/team/{file}", s.handler((*Server).TeamBadge))
+	mux.HandleFunc("GET /img/episode/{file}", s.handler((*Server).EpisodeArt))
 
 	// Authenticated pages
 	mux.HandleFunc("GET /profiles", s.handler((*Server).ProfilesPage))

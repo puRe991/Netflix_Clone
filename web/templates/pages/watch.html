@@ -19,7 +19,7 @@
     data-csrf-token="{{.CSRFToken}}"
     {{if .NextHref}}data-next-href="{{.NextHref}}"{{end}}>
     <div class="yt-frame"><div id="yt-player"></div>
-      <button type="button" class="yt-consent" id="yt-consent">
+      <button type="button" class="yt-consent" id="yt-consent"{{if .EpisodeID}} style="background-image:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.75)),url('/img/episode/{{.EpisodeID}}.svg')"{{end}}>
         <span class="yt-consent-play">▶</span>
         <span>Video abspielen</span>
         <small>Beim Abspielen wird das offizielle Video von YouTube (Google) geladen und Daten an YouTube übertragen. Siehe <a href="/legal/datenschutz">Datenschutz</a>.</small>

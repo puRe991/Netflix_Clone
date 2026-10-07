@@ -24,7 +24,7 @@
   {{end}}
   <table>
     {{if $.HasMatches}}
-    <thead><tr><th>Match</th><th>Begegnung</th><th>Format</th><th>Ergebnis</th><th></th></tr></thead>
+    <thead><tr><th></th><th>Match</th><th>Begegnung</th><th>Format</th><th>Ergebnis</th><th></th></tr></thead>
     {{else}}
     <thead><tr><th>#</th><th>Titel</th><th>Dauer</th><th></th></tr></thead>
     {{end}}
@@ -32,6 +32,7 @@
       {{range .Episodes}}
       {{if .IsPublished}}
       <tr>
+        {{if $.HasMatches}}<td class="ep-thumb-cell"><a href="/watch/episode/{{.ID}}"><img class="ep-thumb" src="/img/episode/{{.ID}}.svg" alt="" width="160" height="90" loading="lazy"></a></td>{{end}}
         {{if .Match}}
         <td>{{.Title}}{{if .Match.PlayedOn}}<div class="card-meta">{{formatDate .Match.PlayedOn}}</div>{{end}}</td>
         <td>{{template "match-teams" dict "Match" .Match "Hide" $.HideSpoilers}}</td>

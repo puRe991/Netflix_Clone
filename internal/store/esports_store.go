@@ -345,3 +345,32 @@ func (s *Store) FollowedTeamIDs(ctx context.Context, profileID string) (map[stri
 	}
 	return ids, rows.Err()
 }
+
+// EpisodeArtwork is what the generated episode graphic shows.
+type EpisodeArtwork struct {
+	Episode     models.Episode
+	SeasonTitle string
+	MediaTitle  string
+	MediaSlug   string
+	ReleaseYear int
+}
+
+// GetEpisodeArtwork loads an episode (with its match, if any) together with
+// the season and title it belongs to, in one round trip for the episode
+// row plus the match lookup.
+func (s *Store) GetEpisodeArtwork(ctx context.Context, episodeID string) (EpisodeArtwork, error) {
+	var a EpisodeArtwork
+	err := s.Pool.QueryRow(ctx, `
+		select sn.title, m.title, m.slug, m.release_year
+		from episodes e
+		join seasons sn on sn.id = e.season_id
+		join series se on se.id = sn.series_id
+		join media m on m.id = se.media_id
+		where e.id = $1
+	`, episodeID).Scan(&a.SeasonTitle, &a.MediaTitle, &a.MediaSlug, &a.ReleaseYear)
+	if err != nil {
+		return a, mapNotFound(err)
+	}
+	a.Episode, err = s.GetEpisodeByID(ctx, episodeID)
+	return a, err
+}

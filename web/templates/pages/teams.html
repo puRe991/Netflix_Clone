@@ -6,7 +6,7 @@
   <div class="team-grid">
     {{range .Teams}}
     <div class="team-tile">
-      <a href="/team/{{.Slug}}" class="team-name">{{.Name}}</a>
+      <a href="/team/{{.Slug}}" class="team-tile-head"><img src="{{teamLogo .}}" alt="" width="48" height="48" loading="lazy"><span class="team-name">{{.Name}}</span></a>
       <div class="card-meta">{{if .ShortName}}{{derefStr .ShortName}}{{end}}{{if and .ShortName .Country}} · {{end}}{{if .Country}}{{derefStr .Country}}{{end}}</div>
       {{if $.CanFollow}}
       {{if index $.Followed .ID}}
