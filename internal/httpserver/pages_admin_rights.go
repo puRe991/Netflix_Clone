@@ -13,7 +13,8 @@ func parseRightsForm(r *http.Request) (store.RightsInfoInput, error) {
 
 	sourceVal, err := requireEnum("Rechtequelle", r.FormValue("source"),
 		string(models.RightsPublicDomain), string(models.RightsCreativeCommons),
-		string(models.RightsRevenueShare), string(models.RightsOwned), string(models.RightsLicensed))
+		string(models.RightsRevenueShare), string(models.RightsOwned), string(models.RightsLicensed),
+		string(models.RightsOfficialEmbed))
 	if err != nil {
 		return in, err
 	}

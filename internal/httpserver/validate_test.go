@@ -56,3 +56,16 @@ func TestOptionalString(t *testing.T) {
 		t.Errorf("expected trimmed value 'A24', got %v", got)
 	}
 }
+
+func TestRequireImageURL(t *testing.T) {
+	for _, ok := range []string{"https://example.com/a.jpg", "/static/img/esports/x-poster.svg"} {
+		if _, err := requireImageURL("img", ok); err != nil {
+			t.Errorf("requireImageURL(%q) rejected: %v", ok, err)
+		}
+	}
+	for _, bad := range []string{"", "img.jpg", "/etc/passwd", "/static/../secret", "javascript:alert(1)"} {
+		if _, err := requireImageURL("img", bad); err == nil {
+			t.Errorf("requireImageURL(%q) accepted", bad)
+		}
+	}
+}

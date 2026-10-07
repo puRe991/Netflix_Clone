@@ -13,6 +13,15 @@
 <div style="padding:0 1.5rem;margin-top:1.5rem">
   <input type="text" id="search-input" class="search-input" placeholder="Titel suchen…" style="margin:0">
 </div>
+{{if .FollowedMatches}}
+<section class="row">
+  <h2>Deine Teams</h2>
+  <div class="row-track scrollbar-hide">
+    {{range .FollowedMatches}}{{template "match-card" dict "TM" . "Hide" $.HideSpoilers}}{{end}}
+  </div>
+</section>
+{{end}}
+{{template "media-row" dict "Heading" "eSports" "Items" .Esports}}
 {{template "media-row" dict "Heading" "Weiterschauen" "Items" .Continue}}
 {{template "media-row" dict "Heading" "Beliebt" "Items" .Popular}}
 {{template "media-row" dict "Heading" "Filme" "Items" .Movies}}

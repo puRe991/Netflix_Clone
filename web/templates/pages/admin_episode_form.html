@@ -29,12 +29,64 @@
     </div>
     <div class="field">
       <label for="thumbnailUrl">Thumbnail-URL</label>
-      <input type="url" id="thumbnailUrl" name="thumbnailUrl" required value="{{.Episode.ThumbnailURL}}">
+      <input type="text" id="thumbnailUrl" name="thumbnailUrl" required value="{{.Episode.ThumbnailURL}}">
     </div>
     <div class="field field-checkbox">
       <input type="checkbox" id="isPublished" name="isPublished" {{if .Episode.IsPublished}}checked{{end}}>
       <label for="isPublished" style="margin:0">Veröffentlicht</label>
     </div>
+
+    <h2 style="margin-top:2rem">eSports-Match (optional)</h2>
+    <p class="card-meta">Ohne Teams ist die Episode eine normale Episode. Das Ergebnis wird nur Profilen gezeigt, die den Spoiler-Schutz ausgeschaltet haben. Offizielle YouTube-VODs (Video-URL und alle weiteren Teile) laufen über den Embed-Player und sind ohne Abo und ohne Login abspielbar.</p>
+    <div class="field">
+      <label for="gameId">Spiel</label>
+      <select id="gameId" name="gameId">
+        <option value="">– keins –</option>
+        {{range .Games}}<option value="{{.ID}}" {{if and $.Episode.Match $.Episode.Match.GameID (eq (derefStr $.Episode.Match.GameID) .ID)}}selected{{end}}>{{.Name}}</option>{{end}}
+      </select>
+    </div>
+    <div class="field">
+      <label for="teamAId">Team A</label>
+      <select id="teamAId" name="teamAId">
+        <option value="">– kein Match –</option>
+        {{range .Teams}}<option value="{{.ID}}" {{if and $.Episode.Match (eq $.Episode.Match.TeamAID .ID)}}selected{{end}}>{{.Name}}</option>{{end}}
+      </select>
+    </div>
+    <div class="field">
+      <label for="teamBId">Team B</label>
+      <select id="teamBId" name="teamBId">
+        <option value="">– kein Match –</option>
+        {{range .Teams}}<option value="{{.ID}}" {{if and $.Episode.Match (eq $.Episode.Match.TeamBID .ID)}}selected{{end}}>{{.Name}}</option>{{end}}
+      </select>
+    </div>
+    <div class="field">
+      <label for="stage">Phase</label>
+      <input type="text" id="stage" name="stage" maxlength="60" placeholder="z. B. Grand Final" value="{{if .Episode.Match}}{{.Episode.Match.Stage}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="bestOf">Format</label>
+      <select id="bestOf" name="bestOf">
+        {{$bo := 3}}{{if .Episode.Match}}{{$bo = .Episode.Match.BestOf}}{{end}}
+        <option value="1" {{if eq $bo 1}}selected{{end}}>Bo1</option>
+        <option value="3" {{if eq $bo 3}}selected{{end}}>Bo3</option>
+        <option value="5" {{if eq $bo 5}}selected{{end}}>Bo5</option>
+      </select>
+    </div>
+    <div class="field" style="display:flex;gap:1rem">
+      <div><label for="scoreA">Maps Team A</label>
+      <input type="number" id="scoreA" name="scoreA" min="0" max="5" value="{{if and .Episode.Match .Episode.Match.ScoreA}}{{derefInt .Episode.Match.ScoreA}}{{end}}"></div>
+      <div><label for="scoreB">Maps Team B</label>
+      <input type="number" id="scoreB" name="scoreB" min="0" max="5" value="{{if and .Episode.Match .Episode.Match.ScoreB}}{{derefInt .Episode.Match.ScoreB}}{{end}}"></div>
+    </div>
+    <div class="field">
+      <label for="playedOn">Spieldatum</label>
+      <input type="date" id="playedOn" name="playedOn" value="{{if .Episode.Match}}{{isoDate .Episode.Match.PlayedOn}}{{end}}">
+    </div>
+    <div class="field">
+      <label for="extraVideoUrls">Weitere Video-Teile (eine URL pro Zeile, z. B. Map 2 und Map 3)</label>
+      <textarea id="extraVideoUrls" name="extraVideoUrls" rows="3">{{if .Episode.Match}}{{joinLines .Episode.Match.ExtraVideoURLs}}{{end}}</textarea>
+    </div>
+
     <button type="submit" class="btn btn-primary">Speichern</button>
   </form>
 </div>

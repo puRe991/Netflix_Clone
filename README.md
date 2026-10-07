@@ -20,6 +20,7 @@ Go dagegen kompiliert `GOOS=windows GOARCH=386` und `GOOS=linux GOARCH=386` offi
 - Dunkles, responsives Streaming-UI mit Hero und Content-Reihen
 - Vollständiger Adminbereich: Dashboard, Medien-CRUD, Genre-CRUD, Serien/Staffel/Episoden-CRUD, Nutzerverwaltung (Rollenwechsel), Abo-Übersicht, Analytics
 - Stripe Checkout, Customer Portal und signaturgeprüftes Webhook (kein unverifizierter Fallback)
+- eSports: Teams (folgen, Teamseiten, Reihe „Deine Teams“), Matches mit Format und Ergebnis, Spoiler-Schutz pro Profil (standardmäßig an), mehrteilige VODs (eine Map pro Video) und ein YouTube-Player ohne Zeitleiste im Spoiler-Modus. Der Seed bringt 19 Counter-Strike-Major-Finals (2014–2026) als offizielle Veranstalter-VODs mit, siehe [docs/esports-vods.md](docs/esports-vods.md)
 - Abo-Status wird bei jeder sicherheitsrelevanten Prüfung frisch aus der Datenbank gelesen, nie aus dem (bis zu 7 Tage alten) Session-Cookie
 
 ## Setup
@@ -64,6 +65,8 @@ Jedes erzeugte Binary ist einzeln lauffähig — keine weiteren Dateien, kein No
 ## Legale Nutzung
 
 StreamFlix ist ausschließlich für eigene Videos, lizenzierte Filme/Serien, frei verwendbare Inhalte und Creator-/Partner-Content mit Nutzungsrechten vorgesehen. Piraterie, DRM-Bypass und illegale Quellen sind ausgeschlossen.
+
+Offizielle YouTube-Uploads von Rechteinhabern (z. B. Turnierveranstaltern) werden nur über den YouTube-Embed-Player abgespielt (Rechtequelle `OFFICIAL_EMBED`). Nach den YouTube API Developer Policies dürfen sie weder hinter dem Abo noch hinter einem Login liegen. Details in [docs/esports-vods.md](docs/esports-vods.md).
 
 ## Projektstruktur
 

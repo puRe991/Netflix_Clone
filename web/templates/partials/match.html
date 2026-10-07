@@ -1,0 +1,47 @@
+{{/* match-teams: "Team A vs. Team B" with links; .Match plus .Hide (spoilers hidden). */}}
+{{define "match-teams"}}
+<span class="match-teams">
+  <a href="/team/{{.Match.TeamA.Slug}}" class="{{if and (not .Hide) (eq .Match.WinnerID .Match.TeamAID)}}match-winner{{end}}">{{.Match.TeamA.Name}}</a>
+  <span class="match-vs">vs.</span>
+  <a href="/team/{{.Match.TeamB.Slug}}" class="{{if and (not .Hide) (eq .Match.WinnerID .Match.TeamBID)}}match-winner{{end}}">{{.Match.TeamB.Name}}</a>
+</span>
+{{end}}
+
+{{/* match-result: the score, only revealed on demand while spoilers are hidden. */}}
+{{define "match-result"}}
+{{if .Match.HasResult}}
+  {{if .Hide}}
+  <details class="spoiler"><summary>Ergebnis anzeigen</summary><span class="match-score">{{derefInt .Match.ScoreA}} : {{derefInt .Match.ScoreB}}</span></details>
+  {{else}}
+  <span class="match-score">{{derefInt .Match.ScoreA}} : {{derefInt .Match.ScoreB}}</span>
+  {{end}}
+{{else}}
+  <span class="card-meta">–</span>
+{{end}}
+{{end}}
+
+{{/* spoiler-toggle: switches spoiler-free mode; .Hide current state, .Path return path, .CSRFToken. */}}
+{{define "spoiler-toggle"}}
+<form action="/spoilers" method="post" class="spoiler-toggle">
+  <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+  <input type="hidden" name="next" value="{{.Path}}">
+  {{if .Hide}}
+  <input type="hidden" name="show" value="1">
+  <span class="badge badge-active">Spoiler-Schutz an</span>
+  <button type="submit" class="btn btn-ghost">Ergebnisse anzeigen</button>
+  {{else}}
+  <input type="hidden" name="show" value="0">
+  <span class="badge badge-warning">Spoiler sichtbar</span>
+  <button type="submit" class="btn btn-ghost">Spoiler-Schutz einschalten</button>
+  {{end}}
+</form>
+{{end}}
+
+{{/* match-card: a match tile for browse rows; .TM is a models.TeamMatch, .Hide spoilers. */}}
+{{define "match-card"}}
+<a class="card card-hover" data-title="{{.TM.MediaTitle}}" href="/watch/episode/{{.TM.Match.EpisodeID}}">
+  <div class="card-poster" style="background-image:url('{{.TM.ThumbnailURL}}')"></div>
+  <div class="card-title">{{.TM.Match.TeamA.Name}} vs. {{.TM.Match.TeamB.Name}}</div>
+  <div class="card-meta">{{.TM.MediaTitle}} · {{.TM.Match.Stage}}{{if not .Hide}}{{if .TM.Match.HasResult}} · {{derefInt .TM.Match.ScoreA}}:{{derefInt .TM.Match.ScoreB}}{{end}}{{end}}</div>
+</a>
+{{end}}

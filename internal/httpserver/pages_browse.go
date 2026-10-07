@@ -14,6 +14,10 @@ type browseData struct {
 	Movies   []models.Media
 	Series   []models.Media
 	ForYou   []models.Media
+	Esports  []models.Media
+
+	FollowedMatches []models.TeamMatch
+	HideSpoilers    bool
 }
 
 func hasTag(m models.Media, tag string) bool {
@@ -43,6 +47,20 @@ func (s *Server) BrowsePage(w http.ResponseWriter, r *http.Request) error {
 		}
 		if hasTag(m, "featured") {
 			data.ForYou = append(data.ForYou, m)
+		}
+	}
+
+	if data.Esports, err = s.Store.ListEsportsMedia(r.Context()); err != nil {
+		return err
+	}
+	v, err := s.currentViewer(r.Context(), r)
+	if err != nil {
+		return err
+	}
+	data.HideSpoilers = v.HideSpoilers
+	if v.Profile != nil {
+		if data.FollowedMatches, err = s.Store.ListMatchesForFollowedTeams(r.Context(), v.Profile.ID); err != nil {
+			return err
 		}
 	}
 

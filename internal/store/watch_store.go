@@ -6,37 +6,40 @@ import (
 	"github.com/pure991/streamflix/internal/models"
 )
 
-const progressColumns = `id, user_id, profile_id, media_id, episode_id, progress_seconds, completed, updated_at`
+const progressColumns = `id, user_id, profile_id, media_id, episode_id, progress_seconds, part_index, completed, updated_at`
 
 func scanProgress(row interface{ Scan(dest ...any) error }) (models.WatchProgress, error) {
 	var p models.WatchProgress
-	err := row.Scan(&p.ID, &p.UserID, &p.ProfileID, &p.MediaID, &p.EpisodeID, &p.ProgressSeconds, &p.Completed, &p.UpdatedAt)
+	err := row.Scan(&p.ID, &p.UserID, &p.ProfileID, &p.MediaID, &p.EpisodeID, &p.ProgressSeconds, &p.PartIndex, &p.Completed, &p.UpdatedAt)
 	return p, err
 }
 
 // UpsertProgress writes watch progress for a profile+media(+episode) tuple.
 // Race-free thanks to the partial unique indexes on watch_progress (see
 // migration 0001): movies (episodeID == nil) and episodes each have their
-// own conflict target.
-func (s *Store) UpsertProgress(ctx context.Context, userID, profileID, mediaID string, episodeID *string, progressSeconds int, completed bool) (models.WatchProgress, error) {
+// own conflict target. partIndex is the VOD part (e.g. map) progressSeconds
+// refers to; it is 0 for single-file videos.
+func (s *Store) UpsertProgress(ctx context.Context, userID, profileID, mediaID string, episodeID *string, progressSeconds, partIndex int, completed bool) (models.WatchProgress, error) {
 	var row interface{ Scan(dest ...any) error }
 
 	if episodeID == nil {
 		row = s.Pool.QueryRow(ctx, `
-			insert into watch_progress (user_id, profile_id, media_id, episode_id, progress_seconds, completed)
-			values ($1, $2, $3, null, $4, $5)
+			insert into watch_progress (user_id, profile_id, media_id, episode_id, progress_seconds, part_index, completed)
+			values ($1, $2, $3, null, $4, $5, $6)
 			on conflict (profile_id, media_id) where episode_id is null
-			do update set progress_seconds = excluded.progress_seconds, completed = excluded.completed, updated_at = now()
+			do update set progress_seconds = excluded.progress_seconds, part_index = excluded.part_index,
+				completed = excluded.completed, updated_at = now()
 			returning `+progressColumns,
-			userID, profileID, mediaID, progressSeconds, completed)
+			userID, profileID, mediaID, progressSeconds, partIndex, completed)
 	} else {
 		row = s.Pool.QueryRow(ctx, `
-			insert into watch_progress (user_id, profile_id, media_id, episode_id, progress_seconds, completed)
-			values ($1, $2, $3, $4, $5, $6)
+			insert into watch_progress (user_id, profile_id, media_id, episode_id, progress_seconds, part_index, completed)
+			values ($1, $2, $3, $4, $5, $6, $7)
 			on conflict (profile_id, media_id, episode_id) where episode_id is not null
-			do update set progress_seconds = excluded.progress_seconds, completed = excluded.completed, updated_at = now()
+			do update set progress_seconds = excluded.progress_seconds, part_index = excluded.part_index,
+				completed = excluded.completed, updated_at = now()
 			returning `+progressColumns,
-			userID, profileID, mediaID, *episodeID, progressSeconds, completed)
+			userID, profileID, mediaID, *episodeID, progressSeconds, partIndex, completed)
 	}
 
 	return scanProgress(row)

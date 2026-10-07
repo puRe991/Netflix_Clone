@@ -1,0 +1,32 @@
+{{define "title"}}Teams – Velvet{{end}}
+{{define "content"}}
+<div class="container" style="padding-top:2rem">
+  <h1>Teams</h1>
+  <p class="card-meta">Folge Teams, um ihre Matches auf der Startseite zu sehen.{{if not .CanFollow}} <a href="/login" style="color:var(--accent)">Einloggen</a>, um Teams zu folgen.{{end}}</p>
+  <div class="team-grid">
+    {{range .Teams}}
+    <div class="team-tile">
+      <a href="/team/{{.Slug}}" class="team-name">{{.Name}}</a>
+      <div class="card-meta">{{if .ShortName}}{{derefStr .ShortName}}{{end}}{{if and .ShortName .Country}} · {{end}}{{if .Country}}{{derefStr .Country}}{{end}}</div>
+      {{if $.CanFollow}}
+      {{if index $.Followed .ID}}
+      <form action="/teams/{{.ID}}/unfollow" method="post">
+        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+        <input type="hidden" name="next" value="/teams">
+        <button type="submit" class="btn btn-secondary">✓ Folge ich</button>
+      </form>
+      {{else}}
+      <form action="/teams/{{.ID}}/follow" method="post">
+        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+        <input type="hidden" name="next" value="/teams">
+        <button type="submit" class="btn btn-ghost">+ Folgen</button>
+      </form>
+      {{end}}
+      {{end}}
+    </div>
+    {{else}}
+    <p>Noch keine Teams angelegt.</p>
+    {{end}}
+  </div>
+</div>
+{{end}}

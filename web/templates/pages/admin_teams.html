@@ -1,0 +1,54 @@
+{{define "title"}}Teams – Admin{{end}}
+{{define "content"}}
+<div class="admin-shell">
+{{template "admin-sidebar" .}}
+<div class="admin-main">
+  <h1>Teams</h1>
+  <table style="max-width:720px">
+    <thead><tr><th>Name</th><th>Kürzel</th><th>Land</th><th>Slug</th><th></th></tr></thead>
+    <tbody>
+      {{range .Teams}}
+      <tr>
+        <td><a href="/team/{{.Slug}}">{{.Name}}</a></td>
+        <td>{{derefStr .ShortName}}</td>
+        <td>{{derefStr .Country}}</td>
+        <td>{{.Slug}}</td>
+        <td>
+          <form action="/admin/teams/{{.ID}}/delete" method="post" onsubmit="return confirm('Team wirklich löschen?')">
+            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+            <button type="submit" class="btn btn-ghost">Löschen</button>
+          </form>
+        </td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:2rem">Neues Team</h2>
+  <form action="/admin/teams" method="post" style="max-width:420px">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required minlength="2" maxlength="60">
+    </div>
+    <div class="field">
+      <label for="slug">Slug</label>
+      <input type="text" id="slug" name="slug" required pattern="[a-z0-9-]+">
+    </div>
+    <div class="field">
+      <label for="shortName">Kürzel (optional)</label>
+      <input type="text" id="shortName" name="shortName" maxlength="12">
+    </div>
+    <div class="field">
+      <label for="country">Land/Region (optional)</label>
+      <input type="text" id="country" name="country" maxlength="40">
+    </div>
+    <div class="field">
+      <label for="logoUrl">Logo-URL (optional)</label>
+      <input type="url" id="logoUrl" name="logoUrl">
+    </div>
+    <button type="submit" class="btn btn-primary">Anlegen</button>
+  </form>
+</div>
+</div>
+{{end}}

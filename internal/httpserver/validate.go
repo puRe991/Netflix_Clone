@@ -61,6 +61,16 @@ func requireURL(field, v string) (string, error) {
 	return v, nil
 }
 
+// requireImageURL accepts an absolute URL or a path to an asset bundled
+// under /static/ (e.g. the generated eSports posters).
+func requireImageURL(field, v string) (string, error) {
+	v = strings.TrimSpace(v)
+	if strings.HasPrefix(v, "/static/") && !strings.Contains(v, "..") {
+		return v, nil
+	}
+	return requireURL(field, v)
+}
+
 func optionalURL(field, v string) (*string, error) {
 	v = strings.TrimSpace(v)
 	if v == "" {

@@ -27,11 +27,11 @@
     </div>
     <div class="field">
       <label for="thumbnailUrl">Thumbnail-URL</label>
-      <input type="url" id="thumbnailUrl" name="thumbnailUrl" required value="{{if .Media}}{{.Media.ThumbnailURL}}{{end}}">
+      <input type="text" id="thumbnailUrl" name="thumbnailUrl" required value="{{if .Media}}{{.Media.ThumbnailURL}}{{end}}">
     </div>
     <div class="field">
       <label for="bannerUrl">Banner-URL</label>
-      <input type="url" id="bannerUrl" name="bannerUrl" required value="{{if .Media}}{{.Media.BannerURL}}{{end}}">
+      <input type="text" id="bannerUrl" name="bannerUrl" required value="{{if .Media}}{{.Media.BannerURL}}{{end}}">
     </div>
     <div class="field">
       <label for="trailerUrl">Trailer-URL (optional)</label>
@@ -91,6 +91,7 @@
         <option value="REVENUE_SHARE" {{if and .Media.Rights (eq .Media.Rights.Source "REVENUE_SHARE")}}selected{{end}}>Umsatzbeteiligung</option>
         <option value="OWNED" {{if and .Media.Rights (eq .Media.Rights.Source "OWNED")}}selected{{end}}>Eigenproduktion</option>
         <option value="LICENSED" {{if and .Media.Rights (eq .Media.Rights.Source "LICENSED")}}selected{{end}}>Lizenziert</option>
+        <option value="OFFICIAL_EMBED" {{if and .Media.Rights (eq .Media.Rights.Source "OFFICIAL_EMBED")}}selected{{end}}>Offizielles Embed (z. B. YouTube-Kanal des Veranstalters)</option>
       </select>
     </div>
     <div class="field">

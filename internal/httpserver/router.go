@@ -28,6 +28,11 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /series/{slug}", s.handler((*Server).SeriesPage))
 	mux.HandleFunc("GET /watch/episode/{id}", s.handler((*Server).WatchEpisodePage))
 	mux.HandleFunc("GET /watch/{id}", s.handler((*Server).WatchMoviePage))
+	mux.HandleFunc("GET /teams", s.handler((*Server).TeamsPage))
+	mux.HandleFunc("GET /team/{slug}", s.handler((*Server).TeamPage))
+	mux.HandleFunc("POST /teams/{id}/follow", s.handler((*Server).FollowTeam))
+	mux.HandleFunc("POST /teams/{id}/unfollow", s.handler((*Server).UnfollowTeam))
+	mux.HandleFunc("POST /spoilers", s.handler((*Server).SetSpoilers))
 
 	// Authenticated pages
 	mux.HandleFunc("GET /profiles", s.handler((*Server).ProfilesPage))
@@ -67,6 +72,10 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /admin/episodes/{id}/delete", s.handler((*Server).AdminEpisodeDelete))
 	mux.HandleFunc("POST /admin/episodes/{id}", s.handler((*Server).AdminEpisodeUpdate))
 
+	mux.HandleFunc("GET /admin/teams", s.handler((*Server).AdminTeamsPage))
+	mux.HandleFunc("POST /admin/teams/{id}/delete", s.handler((*Server).AdminTeamDelete))
+	mux.HandleFunc("POST /admin/teams", s.handler((*Server).AdminTeamCreate))
+
 	mux.HandleFunc("GET /admin/users", s.handler((*Server).AdminUsersPage))
 	mux.HandleFunc("POST /admin/users/{id}/role", s.handler((*Server).AdminUserToggleRole))
 	mux.HandleFunc("GET /admin/subscriptions", s.handler((*Server).AdminSubscriptionsPage))
@@ -87,6 +96,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /api/profiles", s.handler((*Server).CreateProfile))
 	mux.HandleFunc("PATCH /api/profiles/{id}", s.handler((*Server).UpdateProfile))
 	mux.HandleFunc("DELETE /api/profiles/{id}", s.handler((*Server).DeleteProfile))
+	mux.HandleFunc("POST /api/profiles/{id}/spoilers", s.handler((*Server).SetProfileSpoilers))
 
 	// Watch API
 	mux.HandleFunc("GET /api/watch/progress/{id}", s.handler((*Server).APIGetWatchProgressForMedia))

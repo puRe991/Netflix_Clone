@@ -35,7 +35,10 @@ func (s *Server) MoviePage(w http.ResponseWriter, r *http.Request) error {
 
 type seriesData struct {
 	PageData
-	Media models.Media
+	Media        models.Media
+	HideSpoilers bool
+	HasMatches   bool
+	Path         string
 }
 
 func (s *Server) SeriesPage(w http.ResponseWriter, r *http.Request) error {
@@ -48,8 +51,25 @@ func (s *Server) SeriesPage(w http.ResponseWriter, r *http.Request) error {
 		return store.ErrNotFound
 	}
 
+	v, err := s.currentViewer(r.Context(), r)
+	if err != nil {
+		return err
+	}
+
+	hasMatches := false
+	for _, season := range media.Series.Seasons {
+		for _, e := range season.Episodes {
+			if e.Match != nil {
+				hasMatches = true
+			}
+		}
+	}
+
 	return s.render(w, r, "series.html", seriesData{
-		PageData: s.basePageData(w, r),
-		Media:    media,
+		PageData:     s.basePageData(w, r),
+		Media:        media,
+		HideSpoilers: v.HideSpoilers,
+		HasMatches:   hasMatches,
+		Path:         r.URL.Path,
 	})
 }

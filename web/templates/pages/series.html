@@ -9,18 +9,37 @@
   </div>
 </section>
 <div class="container">
+  {{if .HasMatches}}
+  <div style="margin-top:1.5rem">{{template "spoiler-toggle" dict "Hide" .HideSpoilers "Path" .Path "CSRFToken" .CSRFToken}}</div>
+  {{end}}
   {{range .Media.Series.Seasons}}
-  <h2 style="margin-top:2rem">Staffel {{.SeasonNumber}} – {{.Title}}</h2>
+  <h2 style="margin-top:2rem">{{if $.HasMatches}}{{.Title}}{{else}}Staffel {{.SeasonNumber}} – {{.Title}}{{end}}</h2>
   <table>
+    {{if $.HasMatches}}
+    <thead><tr><th>Match</th><th>Begegnung</th><th>Format</th><th>Ergebnis</th><th></th></tr></thead>
+    {{else}}
     <thead><tr><th>#</th><th>Titel</th><th>Dauer</th><th></th></tr></thead>
+    {{end}}
     <tbody>
       {{range .Episodes}}
+      {{if .IsPublished}}
       <tr>
+        {{if .Match}}
+        <td>{{.Title}}{{if .Match.PlayedOn}}<div class="card-meta">{{formatDate .Match.PlayedOn}}</div>{{end}}</td>
+        <td>{{template "match-teams" dict "Match" .Match "Hide" $.HideSpoilers}}</td>
+        {{/* Duration is deliberately not shown for matches: it gives away how many maps were played. */}}
+        <td>Bo{{.Match.BestOf}}</td>
+        <td>{{template "match-result" dict "Match" .Match "Hide" $.HideSpoilers}}</td>
+        {{else if $.HasMatches}}
+        <td>{{.Title}}</td><td colspan="3" class="card-meta">{{.Description}}</td>
+        {{else}}
         <td>{{.EpisodeNumber}}</td>
         <td>{{.Title}}</td>
         <td>{{.Duration}} Min.</td>
+        {{end}}
         <td><a class="btn btn-primary" href="/watch/episode/{{.ID}}">▶ Ansehen</a></td>
       </tr>
+      {{end}}
       {{end}}
     </tbody>
   </table>
