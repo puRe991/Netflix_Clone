@@ -63,6 +63,7 @@ type Profile struct {
 	Name          string
 	AvatarURL     *string
 	IsKidsProfile bool
+	HideSpoilers  bool
 	CreatedAt     time.Time
 }
 
@@ -98,6 +99,10 @@ const (
 	RightsRevenueShare    RightsSource = "REVENUE_SHARE"
 	RightsOwned           RightsSource = "OWNED"
 	RightsLicensed        RightsSource = "LICENSED"
+	// RightsOfficialEmbed marks titles played through the rights holder's
+	// own embeddable upload (e.g. a tournament organizer's YouTube channel).
+	// The platform never hosts or paywalls these videos.
+	RightsOfficialEmbed RightsSource = "OFFICIAL_EMBED"
 )
 
 // RightsInfo tracks who holds the streaming rights to a Media title and for
@@ -155,6 +160,8 @@ type Episode struct {
 	VideoURL      string
 	ThumbnailURL  string
 	IsPublished   bool
+
+	Match *Match
 }
 
 type Genre struct {
@@ -170,8 +177,86 @@ type WatchProgress struct {
 	MediaID         string
 	EpisodeID       *string
 	ProgressSeconds int
+	PartIndex       int
 	Completed       bool
 	UpdatedAt       time.Time
+}
+
+type Game struct {
+	ID   string
+	Name string
+	Slug string
+}
+
+type Team struct {
+	ID        string
+	Name      string
+	Slug      string
+	ShortName *string
+	Country   *string
+	LogoURL   *string
+	CreatedAt time.Time
+}
+
+// Match is the optional eSports extension of an Episode: who played, in
+// which stage and format, and the result. The result must only be rendered
+// for viewers who opted into spoilers (see Profile.HideSpoilers).
+type Match struct {
+	EpisodeID      string
+	GameID         *string
+	TeamAID        string
+	TeamBID        string
+	Stage          string
+	BestOf         int // 1, 3 or 5; 0 = format unknown
+	ScoreA         *int
+	ScoreB         *int
+	PlayedOn       *time.Time
+	ExtraVideoURLs []string
+
+	Game  *Game
+	TeamA Team
+	TeamB Team
+}
+
+// HasResult reports whether both scores are known.
+func (m Match) HasResult() bool {
+	return m.ScoreA != nil && m.ScoreB != nil
+}
+
+// WinnerID returns the winning team's ID, or "" when the result is unknown
+// or a draw.
+func (m Match) WinnerID() string {
+	if !m.HasResult() || *m.ScoreA == *m.ScoreB {
+		return ""
+	}
+	if *m.ScoreA > *m.ScoreB {
+		return m.TeamAID
+	}
+	return m.TeamBID
+}
+
+// VideoParts returns all VOD parts in playback order, starting with the
+// episode's own video URL.
+func (e Episode) VideoParts() []string {
+	parts := []string{e.VideoURL}
+	if e.Match != nil {
+		for _, u := range e.Match.ExtraVideoURLs {
+			if u != "" {
+				parts = append(parts, u)
+			}
+		}
+	}
+	return parts
+}
+
+// TeamMatch is a match row joined with where it lives in the catalog, for
+// team pages and "followed teams" rows.
+type TeamMatch struct {
+	Match        Match
+	EpisodeTitle string
+	MediaTitle   string
+	MediaSlug    string
+	ThumbnailURL string
 }
 
 type WatchlistItem struct {

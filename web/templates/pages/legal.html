@@ -2,6 +2,10 @@
 {{define "content"}}
 <div class="container" style="max-width:720px;padding-top:2rem">
   <h1>{{.Title}}</h1>
+  {{if eq .Title "Datenschutz"}}
+  <h2>Eingebettete YouTube-Videos</h2>
+  <p>eSports-VODs werden als offizielle Videos der jeweiligen Turnierveranstalter von YouTube (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland) im erweiterten Datenschutzmodus (youtube-nocookie.com) eingebettet. Der YouTube-Player wird erst geladen, wenn du auf „Video abspielen“ klickst. Erst dann werden Daten wie deine IP-Adresse an YouTube übertragen und YouTube kann Cookies bzw. ähnliche Technologien einsetzen. Es gelten die <a href="https://policies.google.com/privacy" style="color:var(--accent)">Datenschutzbestimmungen von Google</a> und die <a href="https://www.youtube.com/t/terms" style="color:var(--accent)">Nutzungsbedingungen von YouTube</a>.</p>
+  {{end}}
   <p>Dies ist eine Demo-Plattform. Vor einem echten Livegang müssen Impressum und Datenschutzerklärung rechtlich geprüft und vollständig ausgefüllt werden.</p>
 </div>
 {{end}}

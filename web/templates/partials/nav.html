@@ -4,6 +4,7 @@
   <div class="nav-links">
     {{if .User}}
       <a href="/browse">Browse</a>
+      <a href="/teams">Teams</a>
       <a href="/my-list">Meine Liste</a>
       <a href="/account">Konto</a>
       {{if eq .User.Role "ADMIN"}}<a href="/admin">Admin</a>{{end}}
@@ -12,6 +13,8 @@
         <button type="submit">Logout</button>
       </form>
     {{else}}
+      <a href="/browse">Browse</a>
+      <a href="/teams">Teams</a>
       <a href="/pricing">Preise</a>
       <a href="/login">Einloggen</a>
     {{end}}

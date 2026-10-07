@@ -276,7 +276,7 @@ func parseEpisodeForm(r *http.Request) (title, description string, episodeNumber
 	if videoURL, err = requireURL("videoUrl", r.FormValue("videoUrl")); err != nil {
 		return
 	}
-	if thumbnailURL, err = requireURL("thumbnailUrl", r.FormValue("thumbnailUrl")); err != nil {
+	if thumbnailURL, err = requireImageURL("thumbnailUrl", r.FormValue("thumbnailUrl")); err != nil {
 		return
 	}
 	isPublished = r.FormValue("isPublished") == "on"
@@ -311,6 +311,8 @@ func (s *Server) AdminEpisodeCreate(w http.ResponseWriter, r *http.Request) erro
 type adminEpisodeFormData struct {
 	PageData
 	Episode models.Episode
+	Teams   []models.Team
+	Games   []models.Game
 }
 
 func (s *Server) AdminEpisodeEditFormPage(w http.ResponseWriter, r *http.Request) error {
@@ -321,7 +323,20 @@ func (s *Server) AdminEpisodeEditFormPage(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		return err
 	}
-	return s.render(w, r, "admin_episode_form.html", adminEpisodeFormData{PageData: s.basePageData(w, r), Episode: episode})
+	teams, err := s.Store.ListTeams(r.Context())
+	if err != nil {
+		return err
+	}
+	games, err := s.Store.ListGames(r.Context())
+	if err != nil {
+		return err
+	}
+	return s.render(w, r, "admin_episode_form.html", adminEpisodeFormData{
+		PageData: s.basePageData(w, r),
+		Episode:  episode,
+		Teams:    teams,
+		Games:    games,
+	})
 }
 
 func (s *Server) AdminEpisodeUpdate(w http.ResponseWriter, r *http.Request) error {
@@ -341,7 +356,21 @@ func (s *Server) AdminEpisodeUpdate(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
+	match, err := parseMatchForm(r)
+	if err != nil {
+		return err
+	}
+
 	episode, err := s.Store.UpdateEpisode(r.Context(), id, title, description, episodeNumber, duration, videoURL, thumbnailURL, isPublished)
+	if err != nil {
+		return err
+	}
+
+	if match != nil {
+		err = s.Store.UpsertMatch(r.Context(), episode.ID, *match)
+	} else {
+		err = s.Store.DeleteMatch(r.Context(), episode.ID)
+	}
 	if err != nil {
 		return err
 	}

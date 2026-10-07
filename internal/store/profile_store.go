@@ -6,11 +6,11 @@ import (
 	"github.com/pure991/streamflix/internal/models"
 )
 
-const profileColumns = `id, user_id, name, avatar_url, is_kids_profile, created_at`
+const profileColumns = `id, user_id, name, avatar_url, is_kids_profile, hide_spoilers, created_at`
 
 func scanProfile(row interface{ Scan(dest ...any) error }) (models.Profile, error) {
 	var p models.Profile
-	err := row.Scan(&p.ID, &p.UserID, &p.Name, &p.AvatarURL, &p.IsKidsProfile, &p.CreatedAt)
+	err := row.Scan(&p.ID, &p.UserID, &p.Name, &p.AvatarURL, &p.IsKidsProfile, &p.HideSpoilers, &p.CreatedAt)
 	return p, err
 }
 
@@ -73,6 +73,19 @@ func (s *Store) UpdateProfile(ctx context.Context, id, userID, name string, avat
 
 func (s *Store) DeleteProfile(ctx context.Context, id, userID string) error {
 	tag, err := s.Pool.Exec(ctx, `delete from profiles where id = $1 and user_id = $2`, id, userID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
+// SetProfileHideSpoilers toggles spoiler-free mode on a caller-owned
+// profile; returns ErrNotFound if it doesn't exist or isn't owned by userID.
+func (s *Store) SetProfileHideSpoilers(ctx context.Context, id, userID string, hide bool) error {
+	tag, err := s.Pool.Exec(ctx, `update profiles set hide_spoilers = $1 where id = $2 and user_id = $3`, hide, id, userID)
 	if err != nil {
 		return err
 	}

@@ -1,0 +1,36 @@
+{{define "title"}}{{.Team.Name}} – Velvet{{end}}
+{{define "content"}}
+<div class="container" style="padding-top:2rem">
+  <p><a href="/teams" style="color:var(--accent)">&larr; Alle Teams</a></p>
+  <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+    <h1 style="margin:0">{{.Team.Name}}</h1>
+    {{if .Team.Country}}<span class="card-meta">{{derefStr .Team.Country}}</span>{{end}}
+    {{if .CanFollow}}
+    <form action="/teams/{{.Team.ID}}/{{if .IsFollowed}}unfollow{{else}}follow{{end}}" method="post">
+      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+      <input type="hidden" name="next" value="{{.Path}}">
+      <button type="submit" class="btn {{if .IsFollowed}}btn-secondary{{else}}btn-primary{{end}}">{{if .IsFollowed}}✓ Folge ich{{else}}+ Folgen{{end}}</button>
+    </form>
+    {{end}}
+  </div>
+  <div style="margin:1.5rem 0">{{template "spoiler-toggle" dict "Hide" .HideSpoilers "Path" .Path "CSRFToken" .CSRFToken}}</div>
+
+  <h2>Matches</h2>
+  <table>
+    <thead><tr><th>Turnier</th><th>Begegnung</th><th>Format</th><th>Ergebnis</th><th></th></tr></thead>
+    <tbody>
+      {{range .Matches}}
+      <tr>
+        <td><a href="/series/{{.MediaSlug}}">{{.MediaTitle}}</a><div class="card-meta">{{.Match.Stage}}{{if .Match.PlayedOn}} · {{formatDate .Match.PlayedOn}}{{end}}</div></td>
+        <td>{{template "match-teams" dict "Match" .Match "Hide" $.HideSpoilers}}</td>
+        <td>{{template "match-format" .Match}}</td>
+        <td>{{template "match-result" dict "Match" .Match "Hide" $.HideSpoilers}}</td>
+        <td><a class="btn btn-primary" href="/watch/episode/{{.Match.EpisodeID}}">▶ Ansehen</a></td>
+      </tr>
+      {{else}}
+      <tr><td colspan="5">Noch keine veröffentlichten Matches.</td></tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}

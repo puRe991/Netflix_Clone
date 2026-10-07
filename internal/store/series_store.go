@@ -195,13 +195,25 @@ func (s *Store) ListEpisodes(ctx context.Context, seasonID string) ([]models.Epi
 		}
 		episodes = append(episodes, e)
 	}
-	return episodes, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	rows.Close()
+	return episodes, s.attachMatches(ctx, episodes)
 }
 
 func (s *Store) GetEpisodeByID(ctx context.Context, id string) (models.Episode, error) {
 	row := s.Pool.QueryRow(ctx, `select `+episodeColumns+` from episodes where id = $1`, id)
 	e, err := scanEpisode(row)
-	return e, mapNotFound(err)
+	if err != nil {
+		return e, mapNotFound(err)
+	}
+	if m, err := s.GetMatchByEpisodeID(ctx, e.ID); err == nil {
+		e.Match = &m
+	} else if err != ErrNotFound {
+		return e, err
+	}
+	return e, nil
 }
 
 // GetNextEpisode returns the next published episode in the same season
@@ -246,4 +258,17 @@ func (s *Store) DeleteEpisode(ctx context.Context, id string) error {
 		return ErrNotFound
 	}
 	return nil
+}
+
+// SetSeasonNumber renumbers a season (used by the catalog import to insert
+// new stages before existing ones without breaking the unique constraint).
+func (s *Store) SetSeasonNumber(ctx context.Context, id string, number int) error {
+	_, err := s.Pool.Exec(ctx, `update seasons set season_number = $1 where id = $2`, number, id)
+	return err
+}
+
+// SetEpisodeNumber renumbers an episode within its season.
+func (s *Store) SetEpisodeNumber(ctx context.Context, id string, number int) error {
+	_, err := s.Pool.Exec(ctx, `update episodes set episode_number = $1 where id = $2`, number, id)
+	return err
 }

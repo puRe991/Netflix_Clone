@@ -45,6 +45,7 @@ type progressRequest struct {
 	ProfileID       string  `json:"profileId"`
 	EpisodeID       *string `json:"episodeId"`
 	ProgressSeconds int     `json:"progressSeconds"`
+	PartIndex       int     `json:"partIndex"`
 	Completed       bool    `json:"completed"`
 }
 
@@ -64,6 +65,9 @@ func (s *Server) APIPostWatchProgress(w http.ResponseWriter, r *http.Request) er
 	if body.ProgressSeconds < 0 {
 		return validationErr("progressSeconds darf nicht negativ sein")
 	}
+	if body.PartIndex < 0 {
+		return validationErr("partIndex darf nicht negativ sein")
+	}
 
 	if err := s.Store.VerifyProfileOwnership(r.Context(), body.ProfileID, user.ID); err != nil {
 		if err == store.ErrNotFound {
@@ -72,7 +76,7 @@ func (s *Server) APIPostWatchProgress(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	progress, err := s.Store.UpsertProgress(r.Context(), user.ID, body.ProfileID, body.MediaID, body.EpisodeID, body.ProgressSeconds, body.Completed)
+	progress, err := s.Store.UpsertProgress(r.Context(), user.ID, body.ProfileID, body.MediaID, body.EpisodeID, body.ProgressSeconds, body.PartIndex, body.Completed)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,53 @@
 {{define "title"}}{{.Title}} – Velvet{{end}}
 {{define "content"}}
 <div class="watch-page">
+  {{if .YouTubeIDs}}
+  {{/* Official YouTube embed. Nothing is loaded from YouTube until the viewer
+       clicks play (two-click privacy pattern); after that the official player
+       runs from youtube-nocookie.com. With spoilers hidden, YouTube's own
+       controls (and with them the seek bar that gives away the length of a
+       map) are turned off via the documented controls=0 parameter and
+       replaced by our own buttons that use the IFrame Player API. */}}
+  <div id="yt-watch" class="yt-watch"
+    data-video-ids="{{.YouTubeIDs}}"
+    data-media-id="{{.MediaID}}"
+    data-episode-id="{{.EpisodeID}}"
+    {{if .ProfileID}}data-profile-id="{{.ProfileID}}"{{end}}
+    data-initial-part="{{.InitialPart}}"
+    data-initial-progress="{{.InitialProgress}}"
+    data-hide-spoilers="{{if .HideSpoilers}}1{{else}}0{{end}}"
+    data-csrf-token="{{.CSRFToken}}"
+    {{if .NextHref}}data-next-href="{{.NextHref}}"{{end}}>
+    <div class="yt-frame"><div id="yt-player"></div>
+      <button type="button" class="yt-consent" id="yt-consent">
+        <span class="yt-consent-play">▶</span>
+        <span>Video abspielen</span>
+        <small>Beim Abspielen wird das offizielle Video von YouTube (Google) geladen und Daten an YouTube übertragen. Siehe <a href="/legal/datenschutz">Datenschutz</a>.</small>
+      </button>
+    </div>
+    <div class="yt-controls" id="yt-controls" hidden>
+      <button type="button" class="btn btn-ghost" data-action="back30">« 30 s</button>
+      <button type="button" class="btn btn-ghost" data-action="back10">‹ 10 s</button>
+      <button type="button" class="btn btn-primary" data-action="toggle" id="yt-toggle">Pause</button>
+      <button type="button" class="btn btn-ghost" data-action="fwd10">10 s ›</button>
+      <button type="button" class="btn btn-ghost" data-action="fwd30">30 s »</button>
+      <button type="button" class="btn btn-ghost" data-action="fwd120">2 min »</button>
+      <span class="yt-elapsed" id="yt-elapsed"></span>
+    </div>
+    <p class="yt-fallback" id="yt-fallback" hidden>
+      Dieses Video lässt sich hier gerade nicht abspielen (z. B. regional gesperrt oder entfernt).
+      <a id="yt-fallback-link" href="#" target="_blank" rel="noopener">Auf YouTube ansehen</a>{{if .HideSpoilers}} – Achtung: Dort sind Länge, Kommentare und Vorschläge nicht spoilerfrei.{{end}}
+    </p>
+  </div>
+  <div class="watch-title-bar">
+    <h1 style="font-size:1.1rem;margin:0">{{.Title}}</h1>
+    <p class="card-meta" style="margin:.25rem 0 0">
+      {{if .HideSpoilers}}Spoiler-Schutz an: keine Zeitleiste, Länge und Ergebnis bleiben verborgen.{{end}}
+      Offizielles VOD des Veranstalters, eingebettet von YouTube. {{if .BackHref}}<a href="{{.BackHref}}" style="color:var(--accent)">Zur Übersicht</a>{{end}}
+    </p>
+  </div>
+  <script src="/static/js/yt-watch.js"></script>
+  {{else}}
   <video id="player" controls playsinline autoplay
     data-media-id="{{.MediaID}}"
     {{if .EpisodeID}}data-episode-id="{{.EpisodeID}}"{{end}}
@@ -13,6 +60,7 @@
   <div class="watch-title-bar">
     <h1 style="font-size:1.1rem;margin:0">{{.Title}}</h1>
   </div>
+  <script src="/static/js/watch.js"></script>
+  {{end}}
 </div>
-<script src="/static/js/watch.js"></script>
 {{end}}

@@ -85,10 +85,10 @@ func parseMediaForm(r *http.Request) (store.MediaInput, error) {
 	}
 	in.Type = models.MediaType(typeVal)
 
-	if in.ThumbnailURL, err = requireURL("thumbnailUrl", r.FormValue("thumbnailUrl")); err != nil {
+	if in.ThumbnailURL, err = requireImageURL("thumbnailUrl", r.FormValue("thumbnailUrl")); err != nil {
 		return in, err
 	}
-	if in.BannerURL, err = requireURL("bannerUrl", r.FormValue("bannerUrl")); err != nil {
+	if in.BannerURL, err = requireImageURL("bannerUrl", r.FormValue("bannerUrl")); err != nil {
 		return in, err
 	}
 	if in.TrailerURL, err = optionalURL("trailerUrl", r.FormValue("trailerUrl")); err != nil {

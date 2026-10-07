@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/pure991/streamflix/internal/models"
 	"github.com/pure991/streamflix/web"
@@ -35,6 +36,33 @@ var templateFuncs = template.FuncMap{
 		return strings.Join(tags, ", ")
 	},
 	"add": func(a, b int) int { return a + b },
+	"derefInt": func(n *int) int {
+		if n == nil {
+			return 0
+		}
+		return *n
+	},
+	"derefStr": func(s *string) string {
+		if s == nil {
+			return ""
+		}
+		return *s
+	},
+	"formatDate": func(t *time.Time) string {
+		if t == nil {
+			return ""
+		}
+		return t.Format("02.01.2006")
+	},
+	"isoDate": func(t *time.Time) string {
+		if t == nil {
+			return ""
+		}
+		return t.Format("2006-01-02")
+	},
+	"joinLines": func(lines []string) string {
+		return strings.Join(lines, "\n")
+	},
 	"dict": func(pairs ...any) (map[string]any, error) {
 		if len(pairs)%2 != 0 {
 			return nil, fmt.Errorf("dict requires an even number of arguments")

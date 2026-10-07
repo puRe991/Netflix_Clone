@@ -531,3 +531,195 @@ th {
   border-radius: .5rem;
   margin: 1rem 1.5rem;
 }
+
+/* eSports: matches, spoiler mode, teams */
+.match-teams {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  align-items: baseline;
+}
+
+.match-teams a:hover {
+  color: var(--accent);
+}
+
+.match-vs {
+  color: var(--text-dim);
+  font-size: .85rem;
+}
+
+.match-winner {
+  font-weight: 700;
+  color: oklch(0.8 0.15 140);
+}
+
+.match-score {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.spoiler summary {
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: .9rem;
+}
+
+.spoiler[open] summary {
+  display: none;
+}
+
+.spoiler-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  align-items: center;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 3rem;
+}
+
+.team-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.team-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+/* YouTube embed player */
+.yt-watch {
+  padding-top: 4.5rem;
+}
+
+.yt-frame {
+  position: relative;
+  /* Keep 16:9 but leave room for the controls below on short screens. */
+  width: min(100%, calc((100vh - 12rem) * 16 / 9));
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  background: #000;
+}
+
+.yt-frame iframe,
+.yt-frame #yt-player {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.yt-consent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  padding: 1.5rem;
+  background: radial-gradient(circle at center, oklch(0.25 0.05 25), #000 70%);
+  color: var(--text);
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.yt-consent small {
+  max-width: 34rem;
+  color: var(--text-muted);
+  font-size: .8rem;
+}
+
+.yt-consent small a {
+  color: var(--accent);
+}
+
+.yt-consent-play {
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  font-size: 1.8rem;
+}
+
+.yt-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+  justify-content: center;
+  padding: .75rem 1rem;
+}
+
+.yt-controls[hidden] {
+  display: none;
+}
+
+.yt-elapsed {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 6rem;
+  text-align: center;
+}
+
+.yt-fallback {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 0 1rem;
+}
+
+.yt-fallback[hidden] {
+  display: none;
+}
+
+.yt-fallback a {
+  color: var(--accent);
+}
+
+.season-block {
+  margin-top: 1.5rem;
+}
+
+.season-block > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.season-block > summary::-webkit-details-marker {
+  display: none;
+}
+
+.season-block > summary h2 {
+  display: inline-flex;
+  gap: .5rem;
+  align-items: baseline;
+  margin: 0 0 .75rem;
+}
+
+.season-block > summary h2::before {
+  content: "▸";
+  color: var(--accent);
+}
+
+.season-block[open] > summary h2::before {
+  content: "▾";
+}

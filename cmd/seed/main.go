@@ -131,6 +131,10 @@ func run() error {
 		return err
 	}
 
+	if err := seedEsports(ctx, st); err != nil {
+		return err
+	}
+
 	log.Println("seed complete")
 	return nil
 }
