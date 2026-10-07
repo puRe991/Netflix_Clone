@@ -23,7 +23,7 @@
       <tr>
         <td><a href="/series/{{.MediaSlug}}">{{.MediaTitle}}</a><div class="card-meta">{{.Match.Stage}}{{if .Match.PlayedOn}} · {{formatDate .Match.PlayedOn}}{{end}}</div></td>
         <td>{{template "match-teams" dict "Match" .Match "Hide" $.HideSpoilers}}</td>
-        <td>Bo{{.Match.BestOf}}</td>
+        <td>{{template "match-format" .Match}}</td>
         <td>{{template "match-result" dict "Match" .Match "Hide" $.HideSpoilers}}</td>
         <td><a class="btn btn-primary" href="/watch/episode/{{.Match.EpisodeID}}">▶ Ansehen</a></td>
       </tr>

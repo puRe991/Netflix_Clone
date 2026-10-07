@@ -1,13 +1,15 @@
-# eSports: Counter-Strike-VODs (2006–2026)
+# eSports: Counter-Strike-VOD-Archiv (2005–2026)
 
-Stand der Recherche: 7. Oktober 2026. Der Seed (`go run ./cmd/seed`) legt alle Turniere aus den Tabellen 1, 3 und 4 automatisch an: **46 Grand Finals** aus CS 1.6, CS:Source, CS:GO und CS2. Er kann auf bestehenden Datenbanken erneut laufen und legt nur fehlende Turniere an.
+Stand der Recherche: 7. Oktober 2026. Der Katalog `cmd/seed/esports_catalog.json` enthält **58 Turniere mit 2.408 Episoden (2.254 Matches) und 3.661 offiziellen Videos** in CS 1.6, CS:Source, CS:GO und CS2. Jedes Turnier ist so vollständig wie die Veranstalter es veröffentlicht haben, von den Qualifikationen (Minors, RMRs, Closed Qualifiers, Online-Cups) über Gruppen- und Swiss-Phasen bis zum Grand Final.
+
+`go run ./cmd/seed` importiert den Katalog. Auf bestehenden Datenbanken ergänzt der Import fehlende Phasen und Matches, sortiert die Staffeln neu und lässt bestehende Episoden, Admin-Änderungen und Wiedergabefortschritte unangetastet. Ein zweiter Lauf ändert nichts.
 
 ## Abbildung im Katalog
 
 | eSports | StreamFlix |
 |---|---|
 | Turnier | Medientitel vom Typ `SERIES` (Genre „eSports“, Tags `esports`, `counter-strike`, `csgo`/`cs2`) |
-| Phase (z. B. Playoffs) | Staffel |
+| Phase | Staffel in fester Reihenfolge: Qualifikation, Online-Cups, Opening Stage, Elimination Stage, Challengers Stage, Gruppenphase, Legends Stage, Playoffs, Relegation, Weitere Matches |
 | Match | Episode plus `matches`-Zeile (Teams, Format, Ergebnis, Datum, weitere VOD-Teile) |
 | VOD-Teile (Map 1, Map 2, …) | `episodes.video_url` und danach `matches.extra_video_urls` |
 
@@ -15,7 +17,88 @@ Stand der Recherche: 7. Oktober 2026. Der Seed (`go run ./cmd/seed`) legt alle T
 
 Eingebunden werden **ausschließlich Uploads auf dem offiziellen YouTube-Kanal des Veranstalters** (ESL, ESL Archives, ESL Deutschland/„ESL Meisterschaft“, PGL, BLAST, StarLadder, FACEIT, MLG, World Cyber Games, ESEA, 99Damage). Re-Uploads von Fan-Kanälen, Restreams von Streamern („Watch Parties“) und Team-Kanäle sind ausgeschlossen, auch wenn sie oft besser auffindbar sind. Rechteinhaber der Übertragung ist der Veranstalter, nicht der Uploader.
 
-Jede ID wurde über YouTubes oEmbed-Endpunkt geprüft. Ein HTTP 200 bedeutet: Das Video existiert und Einbetten ist erlaubt. Die Antwort enthält den Kanal (`author_url`), der unten jeweils angegeben ist.
+Jede der 3.661 IDs wurde über YouTubes oEmbed-Endpunkt geprüft. Ein HTTP 200 bedeutet: Das Video existiert und Einbetten ist erlaubt. Alle 3.661 lieferten 200. Zusätzlich wurde für jedes Video der hochladende Kanal (`author_url`) geprüft, denn offizielle Playlists können auch fremde Videos enthalten. Alle stammen von einem dieser 14 Kanäle: `@esl`, `@ESLCS`, `@ESLArchives`, `@ESLDeutschland`, `@pgl`, `@PGL_VODs`, `@BLASTPremier`, `@starladder_cs`, `@starladder_cs_highlights`, `@FACEIT`, `@MajorLeagueGaming`, `@WorldCyberGamesOfficial`, `@ESEA`, `@99DMGCSGO`. `@PGL_VODs` wird vom PGL-Hauptkanal selbst verlinkt. Der Test `cmd/seed/esports_test.go` erzwingt diese Liste.
+
+## Wie der Katalog entstanden ist
+
+1. **Sammeln:** Für jedes Turnier wurden die Kanalsuche und die offiziellen Turnier-Playlists des Veranstalterkanals ausgelesen, nicht die allgemeine YouTube-Suche. Wegen schwankender Suchergebnisse lief das zweimal, die Ergebnisse wurden zusammengeführt.
+2. **Filtern:** Highlights, Talkshows, Interviews, Showmatches, andere Spiele (Hearthstone, StarCraft, LoL, Black Ops …), Videos anderer Jahrgänge, fremdsprachige Doppel-Uploads und 99Damage-Co-Streams fremder Ligen (z. B. ESL Pro League) fliegen raus.
+3. **Zuordnen:** Aus den Titeln werden Phase, Tag/Runde/Gruppe, Paarung und Map-Nummer gelesen. Fehlt die Phase im Titel, gilt der Name der offiziellen Playlist. Videos derselben Paarung und Phase werden zu einem Match mit mehreren Teilen zusammengefasst. Eine wiederholte Map-Nummer beginnt ein neues Match.
+4. **Teams:** Schreibweisen werden zusammengeführt (z. B. „NaVi“, „Na'Vi“ und „Natus Vincere“ oder „Alernate aTTaX“ und „ALTERNATE aTTaX“). Eine Paarung wird **nur dann zum Match mit Teamseiten, wenn beide Teams eindeutig erkannt sind.** WCG-Nationalteams („POL vs. CAN“), Platzhalter („TBA“) und Streams mit mehreren Begegnungen („AHG & BIG vs. Sprout“) werden normale Episoden.
+5. **Übertragungen:** Ganztägige Streams (über 5 Stunden) werden nur dort als „Übertragung“ übernommen, wo es in der Phase keine Einzelmatch-Videos gibt, also vor allem bei BLAST. Das vermeidet Dubletten.
+6. **WCG 2005–2010** wurde wegen sehr uneinheitlicher Titel von Hand erfasst. Doppel-Uploads desselben Spiels wurden zusammengeführt, und die koreanischen Uploads („결승 1라운드“ = Finale, 1. Runde) halfen bei der Reihenfolge.
+7. **Format und Ergebnis:** Das Serienformat (Bo1/Bo3/Bo5) wird nur gesetzt, wenn Titel oder Map-Nummern es belegen, sonst steht „–“. Ergebnisse gibt es nur bei den verifizierten Grand Finals (Tabellen 1, 3, 4). Alle anderen Matches haben bewusst kein Ergebnis, statt eines geratenen.
+
+## Archiv-Übersicht (aus dem Katalog erzeugt)
+
+| Turnier | Spiel | Phasen (Episoden) | Matches | Videos | Kanäle |
+|---|---|---|---|---|---|
+| EMS One Katowice 2014 | CS:GO | Gruppenphase (8), Playoffs (7) | 15 | 23 | @esl |
+| ESL One Cologne 2014 | CS:GO | Gruppenphase (16), Playoffs (7) | 23 | 32 | @ESLCS, @esl |
+| ESL One Cologne 2015 | CS:GO | Qualifikation (38), Gruppenphase (20), Playoffs (7) | 65 | 78 | @ESLArchives |
+| ESL One Katowice 2015 | CS:GO | Qualifikation (22), Gruppenphase (6), Playoffs (7) | 35 | 45 | @ESLCS, @esl |
+| ESL One Cologne 2016 | CS:GO | Qualifikation (33), Gruppenphase (18), Playoffs (7) | 58 | 73 | @ESLArchives |
+| MLG Major Championship: Columbus 2016 | CS:GO | Gruppenphase (39), Playoffs (7) | 31 | 52 | @MajorLeagueGaming |
+| PGL Major Kraków 2017 | CS:GO | Gruppenphase (32), Playoffs (7) | 39 | 50 | @pgl |
+| FACEIT Major: London 2018 | CS:GO | Challengers Stage (34), Legends Stage (38), Playoffs (15) | 87 | 88 | @FACEIT |
+| IEM Katowice Major 2019 | CS:GO | Qualifikation (60), Challengers Stage (33), Gruppenphase (4), Legends Stage (33), Playoffs (11) | 141 | 238 | @ESLArchives |
+| StarLadder Major: Berlin 2019 | CS:GO | Qualifikation (196), Challengers Stage (33), Legends Stage (33), Playoffs (7) | 261 | 478 | @starladder_cs_highlights |
+| PGL Major Stockholm 2021 | CS:GO | Challengers Stage (33), Legends Stage (29), Playoffs (7) | 69 | 114 | @pgl |
+| IEM Rio Major 2022 | CS:GO | Qualifikation (157), Challengers Stage (33), Legends Stage (32), Playoffs (7) | 229 | 351 | @ESLArchives |
+| PGL Major Antwerp 2022 | CS:GO | Challengers Stage (33), Legends Stage (7), Playoffs (5), Weitere Matches (37) | 71 | 128 | @pgl |
+| BLAST.tv Paris Major 2023 | CS:GO | Qualifikation (27), Challengers Stage (7), Legends Stage (7), Playoffs (4) | 1 | 45 | @BLASTPremier |
+| PGL CS2 Major Copenhagen 2024 | CS2 | Opening Stage (27), Elimination Stage (34), Playoffs (7) | 68 | 110 | @pgl |
+| Perfect World Shanghai Major 2024 | CS2 | Opening Stage (33), Elimination Stage (39), Playoffs (1) | 73 | 73 | @PGL_VODs, @pgl |
+| BLAST.tv Austin Major 2025 | CS2 | Opening Stage (8), Challengers Stage (7), Legends Stage (7), Playoffs (4), Weitere Matches (1) | 1 | 27 | @BLASTPremier |
+| StarLadder Budapest Major 2025 | CS2 | Opening Stage (34), Challengers Stage (33), Legends Stage (33), Playoffs (7) | 107 | 107 | @starladder_cs |
+| IEM Cologne Major 2026 | CS2 | Opening Stage (33), Challengers Stage (33), Legends Stage (26), Playoffs (14) | 106 | 106 | @ESLArchives |
+| World Cyber Games 2005 | CS:Source | Gruppenphase (2), Playoffs (2), Weitere Matches (2) | 4 | 9 | @WorldCyberGamesOfficial |
+| World Cyber Games 2006 | CS 1.6 | Gruppenphase (2), Playoffs (3), Weitere Matches (8) | 12 | 20 | @WorldCyberGamesOfficial |
+| World Cyber Games 2007 | CS 1.6 | Gruppenphase (6), Playoffs (1) | 1 | 9 | @WorldCyberGamesOfficial |
+| Intel Extreme Masters III – Global Challenge Dubai 2008 | CS 1.6 | Playoffs (1), Weitere Matches (11) | 12 | 12 | @ESLArchives |
+| World Cyber Games 2008 | CS 1.6 | Gruppenphase (6), Playoffs (2) | 8 | 11 | @WorldCyberGamesOfficial |
+| Intel Extreme Masters III – European Championship 2009 | CS 1.6 | Weitere Matches (10) | 10 | 10 | @ESLArchives |
+| Intel Extreme Masters IV – Global Challenge Chengdu 2009 | CS 1.6 | Playoffs (1), Weitere Matches (6) | 7 | 7 | @ESLArchives, @esl |
+| Intel Extreme Masters IV – Global Challenge Dubai 2009 | CS 1.6 | Playoffs (4) | 4 | 4 | @esl |
+| World Cyber Games 2009 | CS 1.6 | Qualifikation (3), Gruppenphase (17), Playoffs (3) | 23 | 30 | @WorldCyberGamesOfficial |
+| Intel Extreme Masters IV – World Championship 2010 | CS 1.6 | Playoffs (1), Weitere Matches (10) | 9 | 11 | @ESLArchives, @esl |
+| Intel Extreme Masters V – Global Challenge Cologne 2010 | CS 1.6 | Playoffs (1) | 1 | 1 | @esl |
+| World Cyber Games 2010 | CS 1.6 | Gruppenphase (3), Playoffs (2) | 5 | 8 | @WorldCyberGamesOfficial |
+| Intel Extreme Masters V – European Championship Finals 2011 | CS 1.6 | Playoffs (1) | 1 | 3 | @ESLArchives |
+| Intel Extreme Masters V – World Championship 2011 | CS 1.6 | Playoffs (1) | 1 | 2 | @ESLArchives |
+| Intel Extreme Masters VI – Global Challenge Guangzhou 2011 | CS 1.6 | Playoffs (1) | 1 | 3 | @ESLArchives |
+| Intel Extreme Masters VI – Global Challenge New York 2011 | CS 1.6 | Playoffs (1), Weitere Matches (1) | 1 | 3 | @ESLArchives, @esl |
+| ESEA LAN Season 10 | CS:Source | Playoffs (1), Weitere Matches (2) | 3 | 6 | @ESEA |
+| ESEA LAN Season 11 | CS:Source | Playoffs (1), Weitere Matches (12) | 13 | 29 | @ESEA |
+| Intel Extreme Masters VI – Global Challenge Kiev 2012 | CS 1.6 | Playoffs (1), Weitere Matches (1) | 1 | 2 | @ESLArchives |
+| Intel Extreme Masters VI – World Championship 2012 | CS 1.6 | Playoffs (1) | 1 | 2 | @esl |
+| RaidCall EMS One Fall 2013 | CS:GO | Online-Cups (24), Gruppenphase (16) | 40 | 41 | @esl |
+| RaidCall EMS One Finals 2013 | CS:GO | Online-Cups (11), Gruppenphase (12), Playoffs (7) | 30 | 30 | @esl |
+| RaidCall EMS One Summer 2013 | CS:GO | Online-Cups (11) | 11 | 11 | @esl |
+| ESL Pro Series Summer Finals 2012 (CS 1.6) | CS 1.6 | Playoffs (1) | 1 | 2 | @ESLDeutschland |
+| ESL Pro Series Summer Finals 2012 (CS:Source) | CS:Source | Playoffs (1) | 1 | 3 | @ESLDeutschland |
+| ESL Pro Series Finals Winter 2014 | CS:GO | Playoffs (10) | 10 | 11 | @ESLDeutschland, @esl |
+| ESL Pro Series Germany Summer 2014 | CS:GO | Gruppenphase (8), Playoffs (2), Weitere Matches (4) | 13 | 21 | @ESLDeutschland, @esl |
+| ESL Pro Series Spring 2014 | CS:GO | Playoffs (5) | 5 | 11 | @ESLDeutschland, @esl |
+| ESL Meisterschaft Frühling 2016 | CS:GO | Playoffs (3) | 3 | 3 | @ESLDeutschland |
+| ESL Meisterschaft Winter 2016 | CS:GO | Playoffs (3) | 3 | 7 | @ESLArchives |
+| 99Damage Liga Saison 10 | CS:GO | Gruppenphase (25), Playoffs (6), Relegation (18), Weitere Matches (29) | 78 | 162 | @99DMGCSGO |
+| 99Damage Liga Saison 9 | CS:GO | Gruppenphase (33), Playoffs (6), Relegation (16), Weitere Matches (27) | 79 | 173 | @99DMGCSGO |
+| 99Damage Liga Saison 11 | CS:GO | Gruppenphase (53), Playoffs (3), Relegation (10) | 66 | 134 | @99DMGCSGO |
+| 99Damage Liga Saison 12 | CS:GO | Gruppenphase (58), Relegation (6), Weitere Matches (3) | 63 | 131 | @99DMGCSGO |
+| 99Damage Liga Saison 13 | CS:GO | Gruppenphase (72), Playoffs (3), Relegation (4) | 79 | 154 | @99DMGCSGO |
+| 99Damage Liga Saison 14 | CS:GO | Gruppenphase (81), Playoffs (3), Relegation (3) | 87 | 165 | @99DMGCSGO |
+| 99Damage Liga Saison 15 | CS:GO | Gruppenphase (64), Playoffs (2), Relegation (4) | 66 | 137 | @99DMGCSGO |
+| ESL Meisterschaft 2020 – Saison 1 | CS:GO | Gruppenphase (21), Playoffs (3), Weitere Matches (1) | 3 | 25 | @ESLDeutschland |
+| 99Damage Liga Saison 16 | CS:GO | Gruppenphase (20), Playoffs (1) | 18 | 40 | @99DMGCSGO |
+
+**Hinweise zu einzelnen Turnieren** (auch im Rechte-Vermerk des jeweiligen Titels hinterlegt):
+
+- **World Cyber Games 2005 (CS:Source):** Das Finale Team3D gegen k23 gibt es in zwei offiziellen Teilen mit identischem Titel. Die Reihenfolge der Teile ist nicht gesichert. Laut Wikipedia gewann Team3D, ein Ergebnis ist nicht hinterlegt.
+- **ESEA LAN Season 11 (CS:Source):** Das Grand Final Dynamic gegen Fully Torqued ist in sechs offiziellen Teilen eingebunden. Dynamic kam aus dem Lower Bracket. Das genaue Serienformat ist nicht belegt, deshalb steht es auf „–“.
+- **99Damage Liga Saison 12–16:** Alle offiziellen Spieltage, Relegationen und Offline-Finals. Bei den Offline-Finals sagt der Videotitel nicht, welche Begegnung das Endspiel war. Sie stehen deshalb als „Offline-Finals“ ohne „Grand Final“-Markierung im Katalog.
+- **IEM European Championships:** Die Finals 1/3–3/3 Fnatic gegen mTw gehören zur **IEM V European Championship 2011 (Kiew)**. Grundlage dafür sind die Platzierungen auf esportsearnings.com (1. Fnatic, 2. mTw) und der Upload-Zeitpunkt 2011. Die Uploads mit dem Titel „IEM 2009 Hanover Season II European Championship“ stehen als **IEM III European Championship 2009**. Die ESL betitelt sie als Season II, laut Wikipedia gehört das Turnier zu Season III.
+- **Neu dazugekommen, weil die offiziellen Archive sie enthalten:** IEM III Global Challenge Dubai 2008 sowie RaidCall EMS One Summer und Fall 2013 (Online-Cups und Gruppen). Die Cups der Spring Season gehören zu „RaidCall EMS One Finals 2013“.
 
 ## Rechtliche Leitplanken (bitte vor Livegang anwaltlich prüfen lassen)
 
@@ -105,12 +188,10 @@ Hinweis: Die ESL hat die Finals von 2011 und 2012 in den Videotiteln teils falsc
 | ELEAGUE Major Boston 2018 | Cloud9 vs. FaZe (2:1) | Nur der Team-Kanal „Cloud9 VODs“, der nicht Rechteinhaber der Übertragung ist |
 
 | CPL, ESWC, WCG 2000–2004 und weitere Turniere vor ca. 2006 | – | YouTube gab es erst ab 2005. Von dieser Zeit existieren nur Fan-Uploads, Fragmovies und Demo-Aufnahmen, keine Uploads der Veranstalter. Der ESWC-Kanal hat keine CS-Finals aus dieser Zeit |
-| World Cyber Games 2005 (CS:Source) | Team3D vs. k23 | Offizielle WCG-Uploads vorhanden, aber zwei Teile mit identischem Titel und ohne erkennbare Reihenfolge |
 | World Cyber Games 2011 | ESC vs. SK Gaming | Nur Fan-Uploads |
 | DreamHack-Finals CS 1.6 (2006–2012) | – | Nur Fan- und Team-Uploads |
-| IEM European Championship (Fnatic vs. mTw) | – | Offizieller ESL-Archives-Upload, aber Saison und Jahr ließen sich nicht eindeutig zuordnen |
-| ESEA LAN Season 11 (CS:Source) | Dynamic vs. Fully Torqued | Offizielle 6 Teile, aber das Format (Bracket-Reset) ist nicht sicher belegt |
-| 99Damage Liga Saison 12–16 | – | Offline-Finals mit mehreren Begegnungen, die eigentliche Finalpaarung war nicht eindeutig |
+| Einzelvideos ohne sichere Zuordnung | – | z. B. „SK Gaming vs. WinFakt – IEM GC New York“ (Jahr unklar) und „Knochen Executioners vs. wNv“ (WCG 2009, nur Teil 2). Dazu WCG-Uploads, die eindeutig Doppel-Uploads desselben Spiels sind |
+| Spiele ohne offizielles VOD innerhalb eingebundener Turniere | – | Manche Maps oder Matches haben die Veranstalter nie hochgeladen. Solche Matches sind mit den vorhandenen Teilen eingebunden |
 
 Für diese Turniere wäre eine Lizenzanfrage beim Veranstalter (DreamHack/ESL FACEIT Group, Warner Bros. Discovery für ELEAGUE, Samsung für die WCG-Archive) der richtige Weg.
 
@@ -124,8 +205,8 @@ Für diese Turniere wäre eine Lizenzanfrage beim Veranstalter (DreamHack/ESL FA
 ## IDs erneut prüfen
 
 ```bash
-# Alle IDs aus dem Seed:
-grep -oE '"[A-Za-z0-9_-]{11}"' cmd/seed/esports.go | tr -d '"' | sort -u > /tmp/ids
+# Alle IDs aus dem Katalog:
+python3 -c "import json;c=json.load(open('cmd/seed/esports_catalog.json'));print('\n'.join(sorted({v for t in c['tournaments'] for s in t['stages'] for e in s['episodes'] for v in e['videos']})))" > /tmp/ids
 # … oder die Major-IDs direkt:
 for id in do4FUYUHmUM -5laY7bjono cqmdRLNRZHA 02I5vVxlJhU _Ef6cXH1oC8 7nWxZin959o AK5RY8W-AcM TC6N1zHvXpU \
   ttbe_A8Ee50 sIQ1Eh11Quk w2MdCEZSBtw z7IDPdmYw0A 9CcrjvC4SkE kgitmggEgrA A_wk85oA0Rc c2uQV59-tbI hkVQXKCVSFQ \

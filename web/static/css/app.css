@@ -694,3 +694,32 @@ th {
 .yt-fallback a {
   color: var(--accent);
 }
+
+.season-block {
+  margin-top: 1.5rem;
+}
+
+.season-block > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.season-block > summary::-webkit-details-marker {
+  display: none;
+}
+
+.season-block > summary h2 {
+  display: inline-flex;
+  gap: .5rem;
+  align-items: baseline;
+  margin: 0 0 .75rem;
+}
+
+.season-block > summary h2::before {
+  content: "▸";
+  color: var(--accent);
+}
+
+.season-block[open] > summary h2::before {
+  content: "▾";
+}

@@ -20,7 +20,7 @@ Go dagegen kompiliert `GOOS=windows GOARCH=386` und `GOOS=linux GOARCH=386` offi
 - Dunkles, responsives Streaming-UI mit Hero und Content-Reihen
 - Vollständiger Adminbereich: Dashboard, Medien-CRUD, Genre-CRUD, Serien/Staffel/Episoden-CRUD, Nutzerverwaltung (Rollenwechsel), Abo-Übersicht, Analytics
 - Stripe Checkout, Customer Portal und signaturgeprüftes Webhook (kein unverifizierter Fallback)
-- eSports: Teams (folgen, Teamseiten, Reihe „Deine Teams“), Matches mit Format und Ergebnis, Spoiler-Schutz pro Profil (standardmäßig an), mehrteilige VODs (eine Map pro Video) und ein YouTube-Player ohne Zeitleiste im Spoiler-Modus. Der Seed bringt 46 Counter-Strike-Grand-Finals von 2006 bis 2026 als offizielle Veranstalter-VODs mit: alle Majors mit offiziellem VOD, WCG, IEM, ESEA (CS 1.6/Source) sowie deutsche Ligen (EPS, ESL Meisterschaft, 99Damage), siehe [docs/esports-vods.md](docs/esports-vods.md)
+- eSports: Teams (folgen, Teamseiten, Reihe „Deine Teams“), Matches mit Format und Ergebnis, Spoiler-Schutz pro Profil (standardmäßig an), mehrteilige VODs (eine Map pro Video) und ein YouTube-Player ohne Zeitleiste im Spoiler-Modus. Der Seed importiert ein Counter-Strike-Archiv mit 58 Turnieren (2005–2026) und rund 2.400 Episoden als offizielle Veranstalter-VODs, jeweils von der Qualifikation bis zum Grand Final: Majors, WCG, IEM, ESEA, EMS One sowie deutsche Ligen (EPS, ESL Meisterschaft, 99Damage), siehe [docs/esports-vods.md](docs/esports-vods.md)
 - Abo-Status wird bei jeder sicherheitsrelevanten Prüfung frisch aus der Datenbank gelesen, nie aus dem (bis zu 7 Tage alten) Session-Cookie
 
 ## Setup

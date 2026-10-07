@@ -215,3 +215,10 @@ func (s *Store) CountMedia(ctx context.Context) (int64, error) {
 	err := s.Pool.QueryRow(ctx, `select count(*) from media`).Scan(&n)
 	return n, err
 }
+
+// SetMediaDescription replaces just the description (used by the eSports
+// catalog import to refresh texts it generated itself).
+func (s *Store) SetMediaDescription(ctx context.Context, id, description string) error {
+	_, err := s.Pool.Exec(ctx, `update media set description = $1, updated_at = now() where id = $2`, description, id)
+	return err
+}

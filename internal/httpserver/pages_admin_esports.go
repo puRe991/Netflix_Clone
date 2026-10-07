@@ -107,7 +107,7 @@ func parseMatchForm(r *http.Request) (*store.MatchInput, error) {
 	if in.Stage, err = requireMinMaxLen("Phase", r.FormValue("stage"), 2, 60); err != nil {
 		return nil, err
 	}
-	bestOf, err := requireEnum("Best-of", r.FormValue("bestOf"), "1", "3", "5")
+	bestOf, err := requireEnum("Best-of", r.FormValue("bestOf"), "0", "1", "3", "5")
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,8 @@ func parseMatchForm(r *http.Request) (*store.MatchInput, error) {
 	if (in.ScoreA == nil) != (in.ScoreB == nil) {
 		return nil, validationErr("Ergebnis bitte für beide Teams angeben oder leer lassen")
 	}
-	if in.ScoreA != nil && (*in.ScoreA < 0 || *in.ScoreB < 0 || *in.ScoreA+*in.ScoreB > in.BestOf) {
+	// BestOf 0 means "format unknown", so only the lower bound applies then.
+	if in.ScoreA != nil && (*in.ScoreA < 0 || *in.ScoreB < 0 || (in.BestOf > 0 && *in.ScoreA+*in.ScoreB > in.BestOf)) {
 		return nil, validationErr("Ergebnis passt nicht zum Best-of-Format")
 	}
 	if in.PlayedOn, err = optionalDate("Spieldatum", r.FormValue("playedOn")); err != nil {

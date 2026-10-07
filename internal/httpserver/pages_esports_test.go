@@ -61,6 +61,14 @@ func TestParseMatchForm(t *testing.T) {
 	}
 
 	v := base()
+	v.Set("bestOf", "0")
+	v.Set("scoreA", "1")
+	v.Set("scoreB", "0")
+	if _, err := parse(v); err != nil {
+		t.Errorf("unknown format with a score rejected: %v", err)
+	}
+
+	v = base()
 	v.Set("bestOf", "5")
 	v.Set("scoreA", "3")
 	v.Set("scoreB", "1")

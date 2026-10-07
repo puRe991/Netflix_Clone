@@ -207,7 +207,7 @@ type Match struct {
 	TeamAID        string
 	TeamBID        string
 	Stage          string
-	BestOf         int
+	BestOf         int // 1, 3 or 5; 0 = format unknown
 	ScoreA         *int
 	ScoreB         *int
 	PlayedOn       *time.Time

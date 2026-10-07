@@ -45,3 +45,6 @@
   <div class="card-meta">{{.TM.MediaTitle}} · {{.TM.Match.Stage}}{{if not .Hide}}{{if .TM.Match.HasResult}} · {{derefInt .TM.Match.ScoreA}}:{{derefInt .TM.Match.ScoreB}}{{end}}{{end}}</div>
 </a>
 {{end}}
+
+{{/* match-format: "Bo3", or "–" when the series format isn't known. */}}
+{{define "match-format"}}{{if .BestOf}}Bo{{.BestOf}}{{else}}<span class="card-meta" title="Format nicht bekannt">–</span>{{end}}{{end}}

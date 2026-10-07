@@ -259,3 +259,16 @@ func (s *Store) DeleteEpisode(ctx context.Context, id string) error {
 	}
 	return nil
 }
+
+// SetSeasonNumber renumbers a season (used by the catalog import to insert
+// new stages before existing ones without breaking the unique constraint).
+func (s *Store) SetSeasonNumber(ctx context.Context, id string, number int) error {
+	_, err := s.Pool.Exec(ctx, `update seasons set season_number = $1 where id = $2`, number, id)
+	return err
+}
+
+// SetEpisodeNumber renumbers an episode within its season.
+func (s *Store) SetEpisodeNumber(ctx context.Context, id string, number int) error {
+	_, err := s.Pool.Exec(ctx, `update episodes set episode_number = $1 where id = $2`, number, id)
+	return err
+}

@@ -67,6 +67,7 @@
       <label for="bestOf">Format</label>
       <select id="bestOf" name="bestOf">
         {{$bo := 3}}{{if .Episode.Match}}{{$bo = .Episode.Match.BestOf}}{{end}}
+        <option value="0" {{if eq $bo 0}}selected{{end}}>unbekannt</option>
         <option value="1" {{if eq $bo 1}}selected{{end}}>Bo1</option>
         <option value="3" {{if eq $bo 3}}selected{{end}}>Bo3</option>
         <option value="5" {{if eq $bo 5}}selected{{end}}>Bo5</option>

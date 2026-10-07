@@ -12,8 +12,16 @@
   {{if .HasMatches}}
   <div style="margin-top:1.5rem">{{template "spoiler-toggle" dict "Hide" .HideSpoilers "Path" .Path "CSRFToken" .CSRFToken}}</div>
   {{end}}
-  {{range .Media.Series.Seasons}}
-  <h2 style="margin-top:2rem">{{if $.HasMatches}}{{.Title}}{{else}}Staffel {{.SeasonNumber}} – {{.Title}}{{end}}</h2>
+  {{$last := len .Media.Series.Seasons}}
+  {{range $i, $season := .Media.Series.Seasons}}
+  {{with $season}}
+  {{if $.HasMatches}}
+  {{/* Tournaments can have hundreds of matches: stages are collapsible and only the last one (usually the playoffs) starts open. */}}
+  <details class="season-block" {{if eq (add $i 1) $last}}open{{end}}>
+  <summary><h2>{{.Title}} <span class="card-meta">({{len .Episodes}})</span></h2></summary>
+  {{else}}
+  <h2 style="margin-top:2rem">Staffel {{.SeasonNumber}} – {{.Title}}</h2>
+  {{end}}
   <table>
     {{if $.HasMatches}}
     <thead><tr><th>Match</th><th>Begegnung</th><th>Format</th><th>Ergebnis</th><th></th></tr></thead>
@@ -28,7 +36,7 @@
         <td>{{.Title}}{{if .Match.PlayedOn}}<div class="card-meta">{{formatDate .Match.PlayedOn}}</div>{{end}}</td>
         <td>{{template "match-teams" dict "Match" .Match "Hide" $.HideSpoilers}}</td>
         {{/* Duration is deliberately not shown for matches: it gives away how many maps were played. */}}
-        <td>Bo{{.Match.BestOf}}</td>
+        <td>{{template "match-format" .Match}}</td>
         <td>{{template "match-result" dict "Match" .Match "Hide" $.HideSpoilers}}</td>
         {{else if $.HasMatches}}
         <td>{{.Title}}</td><td colspan="3" class="card-meta">{{.Description}}</td>
@@ -43,6 +51,8 @@
       {{end}}
     </tbody>
   </table>
+  {{if $.HasMatches}}</details>{{end}}
+  {{end}}
   {{end}}
 </div>
 {{end}}

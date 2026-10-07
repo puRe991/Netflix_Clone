@@ -82,6 +82,14 @@ func TestRenderEsportsTemplates(t *testing.T) {
 	}
 	render("team.html", teamData{Team: match.TeamA, HideSpoilers: false})
 
+	unknownFormat := *match
+	unknownFormat.BestOf = 0
+	unknownFormat.ScoreA, unknownFormat.ScoreB = nil, nil
+	out := render("team.html", teamData{Team: match.TeamA, Matches: []models.TeamMatch{{Match: unknownFormat, MediaTitle: "x", MediaSlug: "x"}}})
+	if !strings.Contains(out, `title="Format nicht bekannt"`) || !strings.Contains(out, "nicht erfasst") {
+		t.Error("unknown format/result not rendered as such")
+	}
+
 	short := "GMB"
 	teams := []models.Team{match.TeamA, {ID: "tb", Name: "Immortals", Slug: "immortals", ShortName: &short}}
 	render("teams.html", teamsData{Teams: teams, Followed: map[string]bool{"ta": true}, CanFollow: true})
