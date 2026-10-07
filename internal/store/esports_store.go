@@ -273,7 +273,7 @@ func (s *Store) listTeamMatchesWithExtras(ctx context.Context, where string, arg
 	join series se on se.id = sn.series_id
 	join media md on md.id = se.media_id
 	where e.is_published = true and md.is_published = true and (` + where + `)
-	order by mt.played_on desc nulls last, md.release_year desc, e.episode_number asc
+	order by coalesce(mt.played_on, make_date(md.release_year, 1, 1)) desc, e.episode_number asc
 	limit 100`
 	rows, err := s.Pool.Query(ctx, query, args...)
 	if err != nil {

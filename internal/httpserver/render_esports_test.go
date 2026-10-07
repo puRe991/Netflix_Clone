@@ -88,7 +88,7 @@ func TestRenderEsportsTemplates(t *testing.T) {
 	render("teams.html", teamsData{Teams: teams, Followed: map[string]bool{}})
 	render("admin_teams.html", adminTeamsData{Teams: teams})
 
-	browseHidden := render("browse.html", browseData{Esports: []models.Media{media}, FollowedMatches: tm, HideSpoilers: true})
+	browseHidden := render("browse.html", browseData{EsportsMajors: []models.Media{media}, EsportsClassics: []models.Media{media}, EsportsDACH: []models.Media{media}, FollowedMatches: tm, HideSpoilers: true})
 	if strings.Contains(browseHidden, "2:1") {
 		t.Error("browse row shows score while spoilers hidden")
 	}

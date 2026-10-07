@@ -14,7 +14,11 @@ type browseData struct {
 	Movies   []models.Media
 	Series   []models.Media
 	ForYou   []models.Media
-	Esports  []models.Media
+	// eSports rows, split by the category tag the seed/admin sets.
+	EsportsMajors   []models.Media
+	EsportsClassics []models.Media
+	EsportsDACH     []models.Media
+	EsportsOther    []models.Media
 
 	FollowedMatches []models.TeamMatch
 	HideSpoilers    bool
@@ -50,8 +54,21 @@ func (s *Server) BrowsePage(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if data.Esports, err = s.Store.ListEsportsMedia(r.Context()); err != nil {
+	esports, err := s.Store.ListEsportsMedia(r.Context())
+	if err != nil {
 		return err
+	}
+	for _, m := range esports {
+		switch {
+		case hasTag(m, "major"):
+			data.EsportsMajors = append(data.EsportsMajors, m)
+		case hasTag(m, "international"):
+			data.EsportsClassics = append(data.EsportsClassics, m)
+		case hasTag(m, "dach-liga"):
+			data.EsportsDACH = append(data.EsportsDACH, m)
+		default:
+			data.EsportsOther = append(data.EsportsOther, m)
+		}
 	}
 	v, err := s.currentViewer(r.Context(), r)
 	if err != nil {
