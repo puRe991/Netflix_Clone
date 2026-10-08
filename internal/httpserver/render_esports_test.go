@@ -64,7 +64,7 @@ func TestRenderEsportsTemplates(t *testing.T) {
 	}
 
 	shown := render("series.html", seriesData{Media: media, HideSpoilers: false, HasMatches: true, Path: "/series/x"})
-	if !strings.Contains(shown, `class="match-winner">Gambit Esports`) {
+	if !strings.Contains(shown, `class="match-winner"><img class="team-icon" src="/img/team/gambit.svg"`) {
 		t.Error("winner not highlighted with spoilers shown")
 	}
 

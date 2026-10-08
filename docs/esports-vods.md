@@ -195,6 +195,17 @@ Hinweis: Die ESL hat die Finals von 2011 und 2012 in den Videotiteln teils falsc
 
 Für diese Turniere wäre eine Lizenzanfrage beim Veranstalter (DreamHack/ESL FACEIT Group, Warner Bros. Discovery für ELEAGUE, Samsung für die WCG-Archive) der richtige Weg.
 
+## Grafiken
+
+Alle eSports-Grafiken erzeugt die Plattform selbst, Rechte Dritter sind nicht betroffen:
+
+- **Turnierposter und -banner** (`web/static/img/esports/*.svg`), erzeugt aus dem Katalog.
+- **Team-Wappen** (`/img/team/{slug}.svg`): Schild mit Kürzel in einer festen, aus dem Team-Slug abgeleiteten Farbe. **Echte Teamlogos werden bewusst nicht eingebunden.** Sie sind Marken der Organisationen und praktisch nie frei lizenziert. Trägt ein Admin unter *Teams* eine Logo-URL ein (z. B. nach einer Freigabe durch das Team), wird diese überall statt des Wappens angezeigt.
+- **Matchup-Bilder pro Episode** (`/img/episode/{id}.svg`): Wappen beider Teams, „VS“, Turnier, Phase und Runde in der Farbe des Turniers. Bei Übertragungen ohne Paarung erscheint der Episodentitel mit Play-Symbol. Die Bilder enthalten nie ein Ergebnis. Sie erscheinen in den Episodenlisten, auf Teamseiten, in der Reihe „Deine Teams“ und als Hintergrund des Players vor dem Klick auf „Abspielen“.
+- **Keine YouTube-Vorschaubilder:** Diese zeigen oft jubelnde Sieger oder den Endstand und würden den Spoiler-Schutz unterlaufen.
+
+Die Grafiken werden bei Bedarf als SVG erzeugt (wenige KB, einen Tag gecacht). Es liegen also keine 2.400 Bilddateien im Repository.
+
 ## Spoiler-Schutz
 
 - Neue Profile haben den Spoiler-Schutz standardmäßig **an** (`profiles.hide_spoilers`). Anonyme Besucher steuern ihn per Cookie.

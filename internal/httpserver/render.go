@@ -35,7 +35,8 @@ var templateFuncs = template.FuncMap{
 	"joinTags": func(tags []string) string {
 		return strings.Join(tags, ", ")
 	},
-	"add": func(a, b int) int { return a + b },
+	"add":      func(a, b int) int { return a + b },
+	"teamLogo": teamLogo,
 	"derefInt": func(n *int) int {
 		if n == nil {
 			return 0
